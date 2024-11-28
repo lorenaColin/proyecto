@@ -11,11 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('collaborators', function (Blueprint $table) {
+        Schema::create('series', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_customer');
-            $table->integer('estatus');
-            $table->enum('actions', ['r','w','rw']);
+            $table->integer('serie');
+            $table->string('folio',40);
+            $table->string('tipoComprobante',40);
+            $table->foreignUuid('uuid_company')
+            ->references('id')
+            ->on('companies')
+            ->onDelete('cascade')
+            ->onUpdate('cascade');
             $table->timestamps();
         });
     }
@@ -25,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('collaborators');
+        Schema::dropIfExists('series');
     }
 };

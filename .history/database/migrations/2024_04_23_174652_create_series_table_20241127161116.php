@@ -11,9 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_types', function (Blueprint $table) {
+        Schema::create('series', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['a','c'])->default('a');
+            $table->integer('serie');
+            $table->string('folio',40);
+            $table->string('tipoComprobante',40);
+            $table->foreignUuid('uuid_company')
+            ->references('id')
+            ->on('companies')
+            ->onDelete('cascade')
+            ->onUpdate('cascade');
+            
             $table->timestamps();
         });
     }
@@ -23,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_types');
+        Schema::dropIfExists('series');
     }
 };
