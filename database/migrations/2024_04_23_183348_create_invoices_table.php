@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('invoices', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->string('serie',25);
             $table->date('date');
             $table->string('way_to_pay', 5);
@@ -40,7 +40,7 @@ return new class extends Migration
           
            
 
-            $table->enum('status', ["vigente", "en proceso", "cancelado", "rechazo de cancelacion"])->default('0');
+            // $table->enum('status', ["vigente", "en proceso", "cancelado", "rechazo de cancelacion"])->default('0');
             $table->string('type_relation',5)->nullable();
             $table->foreignUuid('uuid_company')
                   ->references('id')

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('amount', total: 30, places: 2);
             $table->string('description', 255);
             // $table->integer('receiver_id');
-            $table->intestringger('payment_method',45);
+            $table->string('payment_method',45);
             $table->foreignUuid('uuid_company')
             ->references('id')
             ->on('companies')

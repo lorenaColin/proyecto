@@ -15,7 +15,12 @@ return new class extends Migration
             $table->id();
             $table->date('date_init');
             $table->date('date_end');
-            $table->integer('quantity');
+            $table->integer('new_quantity')->nullable();
+            $table->decimal('new_percentaje', total: 5, places: 2)->nullable();
+            $table->integer('current_quantity')->nullable();
+            $table->decimal('current_percentaje', total: 5, places: 2)->nullable();
+            $table->enum('type', ['R', 'A']);
+            $table->enum('status', ['Activo', 'Inactivo'])->default('Activo');
             $table->timestamps();
         });
     }

@@ -11,34 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('customer_details', function (Blueprint $table) {
+        Schema::create('company_details', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('tones_incluide');
             $table->integer('pac_id');
             $table->date('fechaco');
             $table->date('fechaven');
-            $table->integer('sta_prod');
-            $table->string('certificate', 255);
-            $table->string('private_key', 255);
-            $table->string('password_key', 100);
-            $table->longText('contcert');
-            $table->date('expiration_date_cert');
-            $table->date('start_date_cert');
-            $table->foreignUuid('customer_id')
+            $table->enum('sta_prod', ['P', 'T'])->default('P');
+            $table->string('certificate', 255)->nullable();
+            $table->string('private_key', 255)->nullable();
+            $table->longText('password_key')->nullable();
+            $table->longText('contcert')->nullable();
+            $table->date('expiration_date_cert')->nullable();
+            $table->date('start_date_cert')->nullable();
+            $table->foreignUuid('company_id')
                 ->references('id')
-                ->on('customers')
+                ->on('companies')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
-
-            // $table->unsignedBigInteger('customer_id');
-
-            // $table->foreign('customer_id')
-            //     ->references('id')
-            //     ->on('customers')
-            //     ->onDelete('cascade')
-            //     ->onUpdate('cascade');
-
-
             $table->timestamps();
         });
     }

@@ -15,20 +15,17 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name', 255);
             $table->longText('address')->nullable();
-            // $table->string('street', 150)->nullable();
-            // $table->string('ext_num', 80)->nullable();
-            // $table->string('int_num', 80)->nullable();
-            $table->string('municipality', 100);
+            $table->string('municipality', 3);
             $table->string('colony', 100)->nullable();
             $table->string('locality',3)->nullable();
             $table->string('cp', 12);
             $table->string('rfc', 13);
             $table->string('regime', 3);
             $table->string('email', 75);
-            $table->enum('status', ['Activo', 'Inactivo']);
+            $table->enum('status', ['Activo', 'Inactivo'])->default('Activo');
             $table->string('country', 3);
             $table->string('state', 3);
-            $table->foreignUuid('uuid_company')
+            $table->foreignUuid('company_id')
             ->references('id')
             ->on('companies')
             ->onDelete('cascade')

@@ -13,27 +13,17 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['T', 'D', 'PE']);
+            $table->enum('type', ['T', 'D', 'PE', 'R']);
             $table->string('description', 255);
             $table->integer('tones');
+            $table->integer('gitf_tones');
             $table->decimal('amount', total:30, places: 6);
             $table->date('date');
-            $table->integer('id_usr');
-
-            $table->foreignUuid('customer_id')
+            $table->foreignUuid('company_id')
             ->references('id')
-            ->on('customers')
+            ->on('companies')
             ->onDelete('cascade')
             ->onUpdate('cascade');
-
-            // $table->unsignedBigInteger('customer_id');
-
-            // $table->foreign('customer_id')
-            //     ->references('id')
-            //     ->on('customers')
-            //     ->onDelete('cascade')
-            //     ->onUpdate('cascade');
-
             $table->timestamps();
         });
     }
