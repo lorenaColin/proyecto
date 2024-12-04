@@ -13,3 +13,4 @@ use App\Http\Controllers\CompanyController;
 
 Route::apiResource('users', UserController::class);
 Route::apiResource('companies', CompanyController::class);
+Route::post('logIn', [UserController::class, 'login']);
