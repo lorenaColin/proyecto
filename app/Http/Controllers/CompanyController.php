@@ -12,6 +12,7 @@ use App\Models\CompanyDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 //Terceros
 use App\Http\Requests\CompanyRequest;
