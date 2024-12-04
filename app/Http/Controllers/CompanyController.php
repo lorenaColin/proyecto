@@ -11,6 +11,7 @@ use App\Models\CompanyDetail;
 //Laravel
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 //Terceros
 use App\Http\Requests\CompanyRequest;
