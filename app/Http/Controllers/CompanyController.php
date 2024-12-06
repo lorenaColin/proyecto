@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Auth;
+
 
 //Terceros
 use App\Http\Requests\CompanyRequest;
@@ -36,10 +38,9 @@ class CompanyController extends Controller
 
         try {
             DB::beginTransaction();
-            $idUsuario = 1;
-
-            $tipoEmpresa = (Company::where('id_usr_create', $idUsuario)->count() == 0) ? 'P': 'H';
-            
+            // $idUsuario = 1;
+            $idUsuario = auth('api')->id(); 
+            $tipoEmpresa = (Company::where('id_usr_create', $idUsuario)->count() == 0) ? 'P': 'H';        
             $empresa = Company::create($request->validated());
             $idEmpresa = $empresa->id;
 

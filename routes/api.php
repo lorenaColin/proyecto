@@ -11,6 +11,18 @@ use App\Http\Controllers\CompanyController;
 // })->middleware('auth:sanctum');
 
 
-Route::apiResource('users', UserController::class);
+// Route::apiResource('users', UserController::class);
+// Route::apiResource('companies', CompanyController::class);
+// Route::post('logIn', [UserController::class, 'login']);
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+Route::post('logIn', [UserController::class, 'loginInicio']);  
+Route::post('Autenticacion', [UserController::class, 'auth']);  
+Route::apiResource('users', UserController::class);    
+
+Route::middleware('auth:api')->group(function () {
 Route::apiResource('companies', CompanyController::class);
-Route::post('logIn', [UserController::class, 'login']);
+
+    
+});

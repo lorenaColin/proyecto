@@ -33,11 +33,23 @@ class Company extends Model
         'id_usr_create'
     ];
 
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
         static::creating(function ($model) {
             $model->id = Str::uuid();
         });
+    }
+    public function collaborators()
+    {
+        return $this->belongsToMany(User::class, 'collaborator_company', 'company_id', 'collaborator_id')
+            ->withPivot('permiso') 
+            ->withTimestamps();
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'id_usr_create'); // Relación con el usuario que creó la empresa
     }
 }

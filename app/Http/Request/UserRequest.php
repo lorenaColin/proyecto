@@ -19,7 +19,7 @@ class UserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' =>  ['required', 'string', 'email', Rule::unique('users')->ignore($this->route('user'))],
+            'email' =>  ['required', 'string', 'email'],
             'password' => ['required', 'string', 'min:8', 'max:12'],
         ];
     }
@@ -39,7 +39,7 @@ class UserRequest extends FormRequest
             'email.required' => 'El correo  es requerido.',
             'email.string' => 'El correo debe ser una cadena.',
             'email.email' => 'El correo no tiene un formato valiido.',
-            'email.unique' => 'El correo ya es encuentra en uso',
+            // 'email.unique' => 'El correo ya es encuentra en uso',
             'password.required' => 'La contraseña es obligatoria.',
             'password.string' => 'La contraseña debe ser una cadena.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
