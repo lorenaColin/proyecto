@@ -11,7 +11,7 @@ class PaymentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -48,7 +48,7 @@ class PaymentRequest extends FormRequest
             'type.required' => 'La forma de pago es requerida.',
             'type.string' => 'La forma de pago debe ser una cadena.',
             'type.in' => 'La forma de pago no está dentro de la lista de opciones.',
-            'type.min' => 'La forma de pago tiene que tener mínimo 1 caracteres.',
+            'type.min' => 'La forma de pago tiene que tener mínimo 1 caracter.',
             'type.max' => 'La forma de pago tiene que tener máximo 2 caracteres.',
             'description.required' => 'La descripción es requerida.',
             'description.string' => 'La descripción debe ser una cadena.',
@@ -62,8 +62,8 @@ class PaymentRequest extends FormRequest
             'amount.numeric' => 'La cantidad debe ser un número.',
             'date.required' => 'La fecha es requerida.',
             'date.string' => 'La fecha debe ser una cadena.',
-            'company_id.required' => 'El cliente es requerido.',
-            'company_id.string' => 'El cliente debe ser una cadena.',
+            'company_id.required' => 'La empresa es requerida.',
+            'company_id.string' => 'La empresa debe ser una cadena.',
             'company_id.exists' => 'La empresa no existe.',
         ];
     }

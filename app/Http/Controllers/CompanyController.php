@@ -94,11 +94,11 @@ class CompanyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Company $id)
+    public function show($id)
     {
         try {
             $empresa = Company::findOrFail($id);
-            return ApiResponse::success('Empreasa obtenida exitosamente', 200, $empresa);
+            return ApiResponse::success('Empresa obtenida exitosamente', 200, $empresa);
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error('Empresa no encontrada', 404);
         }
@@ -107,7 +107,7 @@ class CompanyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(CompanyRequest $request, Company $id)
+    public function update(CompanyRequest $request, string $id)
     {
         try {
 
@@ -126,7 +126,7 @@ class CompanyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Company $id)
+    public function destroy($id)
     {
         //
     }
