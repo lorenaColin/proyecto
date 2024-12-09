@@ -13,18 +13,16 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name', 255);
-            $table->longText('address')->nullable();
-            $table->string('municipality', 3);
-            $table->string('colony', 100)->nullable();
-            $table->string('locality',3)->nullable();
-            $table->string('cp', 12);
             $table->string('rfc', 13);
+            $table->string('name', 254);
+            $table->string('cp', 5)->nullable();
+            $table->string('residence', 3)->nullable();
+            $table->string('num_reg_id_trib', 40)->nullable();
             $table->string('regime', 3);
-            $table->string('email', 75);
+            $table->longText('address')->nullable();            
+            $table->string('email', 75)->nullable();
+            $table->string('phone', 13)->nullable();
             $table->enum('status', ['Activo', 'Inactivo'])->default('Activo');
-            $table->string('country', 3);
-            $table->string('state', 3);
             $table->foreignUuid('company_id')
             ->references('id')
             ->on('companies')

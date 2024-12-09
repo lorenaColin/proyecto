@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('companies', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name', 255);
+            $table->string('name', 254);
             $table->longText('address')->nullable();
             $table->string('colony', 100)->nullable();
             $table->string('municipality', 3);
