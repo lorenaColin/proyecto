@@ -50,6 +50,19 @@ class Company extends Model
 
     public function creator()
     {
-        return $this->belongsTo(User::class, 'id_usr_create'); // Relación con el usuario que creó la empresa
+        return $this->belongsTo(User::class, 'id_usr_create'); 
     }
+    public function user(){
+        return $this->belongsTo(User::class, 'id_usr_create');
+    }
+
+    public function companyDetail()
+    {
+        return $this->hasOne('App\Models\CompanyDetail');
+    }
+    public function payments()
+    {
+        return $this->hasMany('App\Models\Payment', 'company_id');
+    }
+    
 }

@@ -18,13 +18,13 @@ use App\Http\Controllers\CustomerController;
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
-Route::post('logIn', [UserController::class, 'loginInicio']);  
-Route::post('Autenticacion', [UserController::class, 'auth']);  
+// Inicio de sesion
+Route::post('InicioSesion', [UserController::class, 'inicioSesion']);  
 Route::apiResource('users', UserController::class);
+Route::post('verifycode', [UserController::class, 'verifyCode']);
+Route::get('resendcode', [UserController::class, 'resendcode']);
 
+//company
 Route::apiResource('companies', CompanyController::class);
 Route::apiResource('customers', CustomerController::class);
-
-Route::middleware('auth:api')->group(function () {
-Route::post('logIn', [UserController::class, 'login']);
-});
+Route::post('customerbyuser', [CustomerController::class, 'customerbyuser']);

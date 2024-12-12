@@ -20,6 +20,10 @@ class Payment extends Model
         'date',
         'company_id',
     ];
+    public function customerPayment()
+    {
+        return $this->belongsTo('App\Models\company', 'company_id');
+    }
 }
 
 

@@ -19,12 +19,14 @@ class User extends Authenticatable implements JWTSubject
      * @var array<int, string>
      */
     protected $fillable = [
-       'email',
+        'email',
+        'name',
         'password',
+        'code',
         'type',
-        'multi_rfc',
         'status',
         'ultima_conexion',
+        'email_verified_at'
     ];
 
     /**
@@ -35,6 +37,7 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'remember_token',
+        'code',
     ];
 
     /**
@@ -47,7 +50,7 @@ class User extends Authenticatable implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            
+
         ];
     }
     public function companies()
@@ -56,17 +59,17 @@ class User extends Authenticatable implements JWTSubject
     }
     public function getJWTIdentifier()
     {
-        return $this->getKey();  
+        return $this->getKey();
     }
 
     public function getJWTCustomClaims()
     {
-        return [];  
+        return [];
     }
     public function collaboratorCompanies()
-{
-    return $this->belongsToMany(Company::class, 'collaborator_company', 'collaborator_id', 'company_id')
-                ->withPivot('permiso') 
-                ->withTimestamps();
-}
+    {
+        return $this->belongsToMany(Company::class, 'collaborator_company', 'collaborator_id', 'company_id')
+            ->withPivot('permiso')
+            ->withTimestamps();
+    }
 }

@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Request\UserRequest;
+use App\Http\Requests\UserRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -23,91 +25,124 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(UserRequest $request)
     {
-        $existie = User::where('email', $request->email)->first();
-        if ($existie) {
-            return ApiResponse::error('El correo electrónico ya está registrado.', 400);
-        }
-        $user = new User();
-        $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        $user->multi_rfc = false;
-        $user->status = 'Activo';
-        $user->ultima_conexion = now();
-        $user->type = 'user';
-        $user->save();
-        return ApiResponse::success('Usuario registrado con éxito', 201, [
-            'user' => $user
+        $validatedData = $request->validated();
+        $validatedData['password'] = Hash::make($validatedData['password']);
+        $validatedData['ultima_conexion'] = now();
+        $validatedData['code'] = strtoupper(Str::random(4));  
+        $user = User::create($validatedData);
+        $token = JWTAuth::fromUser($user);
+        $this->sendVerificationEmail($user);
+        return ApiResponse::success('Registro exitoso. Se ha enviado un código de verificación a tu correo electrónico.', 200, [
+            'user' => $user,
+            'token' => $token
         ]);
     }
-    public function loginInicio(UserRequest $request)
+    private function sendVerificationEmail(User $user)
     {
+        try {
+            $token = JWTAuth::fromUser($user);        
+            Mail::to($user->email)->send(new \App\Mail\UserVerificationMail($user->name, $user->code, $token));
+        } catch (\Exception $e) {
+            throw new \Exception('Error al enviar el correo de verificación.');
+        }
+    }
+
+    public function iniciosesion(Request $request)
+    {
+
         $user = User::where('email', $request->email)->first();
-    
+
         if ($user && Hash::check($request->password, $user->password)) {
-            
-            switch ($user->type) {
-                case "adm":
-                    $empresas = Company::select('companies.id', 'companies.name')->all();
-                    return ApiResponse::success('Datos obtenidos', 200, ['type' => $user->type, 'message' => 'Tienes permisos limitados.', 'id' => $user->id, 'companies' => $empresas ]);
-                    break;
-                case "user":
-                    $empresas = Company::select('companies.id', 'companies.name')->where('id_usr_create', '=', $user->id)->get();
-                    return ApiResponse::success('Datos obtenidos', 200, ['type' => $user->type, 'message' => 'Tienes permisos limitados.', 'id' => $user->id, 'companies' => $empresas ]);
-                    break;
-                default:
-                    $empresas = Company::select('companies.id', 'companies.name')
-                    ->join('collaborator_company', 'collaborator_company.company_id',  '=', 'companies.id' )
-                    ->where('collaborator_company.collaborator_id', '=', $user->id)
-                    ->get();
-                
-                    return ApiResponse::success('Datos obtenidos', 200, ['type' => $user->type, 'message' => 'Tienes permisos limitados.', 'id' => $user->id, 'companies' => $empresas ]);
+
+            if ($user->email_verified_at == null) {
+                return ApiResponse::error('El correo electrónico no ha sido verificado. Por favor, verifica tu correo antes de iniciar sesión.', 403);
             }
 
-          
-        }
-    
-        return ApiResponse::error('Credenciales incorrectas', 401);
-    }
-    
-    public function auth(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
-    
-      
+            $credentials = $request->only('email', 'password');
+
+
             if (!$user = User::where('email', $credentials['email'])->first()) {
                 return ApiResponse::error('Usuario no encontrado', 404);
             }
-    
+
             if (!Hash::check($credentials['password'], $user->password)) {
                 return ApiResponse::error('Contraseña incorrecta', 401);
             }
-    
+
             if (!$token = JWTAuth::fromUser($user)) {
                 return ApiResponse::error('No se pudo crear el token', 500);
             }
-    
+
             return ApiResponse::success('Inicio de sesión exitoso', 200, [
                 'user' => $user,
                 'token' => $token,
                 'type' => $user->type
             ]);
-           
-       
+        }
+
+        return ApiResponse::error('Credenciales incorrectas', 401);
+    }
+
+
+    public function verifyCode(UserRequest $request)
+    {
+        try {
+            $user = auth('api')->user(); 
+            if (!$user) {
+                return ApiResponse::error('Usuario no autenticado o token inválido.', 401);
+            }
+        } catch (JWTException $e) {
+            return ApiResponse::error('Token no válido.', 401);
+        }
+        if ($user->code !== $request->code) {
+            return ApiResponse::error('El código de verificación es incorrecto.', 400);
+        }
+    
+        if ($user->email_verified_at) {
+            return ApiResponse::success('El correo ya está verificado.', 200, []);
+        } 
+        if ($user instanceof User) {
+            $user->email_verified_at = now();
+            $user->save(); 
+        } else {
+            return ApiResponse::error('Usuario no válido.', 400);
+        }
+        return ApiResponse::success('Correo verificado con éxito.', 200, [
+            'user' => [
+                'id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->name,
+                'email_verified_at' => $user->email_verified_at,
+            ]
+        ]);
     }
     
-    
+
+
+
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+   public function resendcode()
     {
-        //
+        $user = auth('api')->user();
+    
+        if (!$user) {
+            return ApiResponse::error('Usuario no autenticado o token inválido.', 401);
+        }
+
+        if ($user->email_verified_at) {
+            return ApiResponse::error('El correo ya ha sido verificado.', 400);
+        }
+    
+        $this->sendVerificationEmail($user);
+    
+        return ApiResponse::success('Se ha reenviado un código de verificación a tu correo electrónico.', 200);
     }
+    
+
 
     /**
      * Update the specified resource in storage.

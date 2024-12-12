@@ -16,7 +16,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 //Terceros
 use App\Http\Requests\CustomerRequest;
 use App\Http\Responses\ApiResponse;
-
+use App\Models\Company;
+use App\Models\User;
 
 class CustomerController extends Controller
 {
@@ -80,4 +81,83 @@ class CustomerController extends Controller
     {
         //
     }
+    // public function customerbyuser(CustomerRequest $request){
+    //     $tipo = auth('api')->id(); 
+    //     $user = User::where('email', $request->email)->first();
+
+    //     switch ($user->$tipo) {
+    //         case "adm":
+    //             $empresas = Company::select('companies.id', 'companies.name')->all();
+    //             return ApiResponse::success('Datos obtenidos', 200, ['type' => $user->type, 'message' => 'Tienes permisos limitados.', 'id' => $user->id, 'companies' => $empresas ]);
+    //             break;
+    //         case "col":
+    //             $empresas = Company::select('companies.id', 'companies.name')
+    //             ->join('collaborator_company', 'collaborator_company.company_id',  '=', 'companies.id' )
+    //             ->where('collaborator_company.collaborator_id', '=', $user->id)
+    //             ->get();
+        
+    //         return ApiResponse::success('Datos obtenidos', 200, ['type' => $user->type,'id' => $user->id, 'companies' => $empresas ]);
+                
+    //         default:
+    //         $empresas = Company::select('companies.id', 'companies.name')->where('id_usr_create', '=', $user->id)->get();
+    //         return ApiResponse::success('Datos obtenidos', 200, ['type' => $user->type, 'id' => $user->id, 'companies' => $empresas ]);
+    //         break;
+    //     }
+    // }
+
+    public function customerbyuser()
+    {
+        $user = auth('api')->user();  
+        if (!$user) {
+            return ApiResponse::error('Usuario no autenticado o token incorrecto ', 401);
+        }    
+        $tipo = $user->type; 
+        $userId = $user->id;   
+        switch ($tipo) {
+            case "adm":
+                $empresas = Company::select('companies.id', 'companies.name')->get();
+                return ApiResponse::success(
+                    'Datos obtenidos', 200,
+                    [
+                        'type' => $tipo,
+                        'id' => $userId,
+                        'companies' => $empresas
+                    ]
+                );
+    
+            case "col": 
+                $empresas = Company::select('companies.id', 'companies.name')
+                    ->join('collaborator_company', 'collaborator_company.company_id', '=', 'companies.id')
+                    ->where('collaborator_company.collaborator_id', '=', $userId)
+                    ->get();
+    
+                return ApiResponse::success(
+                    'Datos obtenidos',  200,
+                    [
+                        'type' => $tipo,
+                        'id' => $userId,
+                        'companies' => $empresas
+                    ]
+                );
+    
+            default: 
+                $empresas = Company::select('companies.id', 'companies.name')
+
+                    ->where('id_usr_create', '=', $userId)
+                    ->get();
+               $empresas = Company::select('id', 'name', 'rfc')->with(['companyDetail:company_id,tones_incluide'])->where('id_usr_create', $userId)->get();  
+    
+                return ApiResponse::success(
+                    'Datos obtenidos',
+                    200,      
+                    [
+                        'type' => $tipo,
+                        'id' => $userId,
+                        'companies' => $empresas
+                    ]
+                );
+        }
+    }
+    
+
 }

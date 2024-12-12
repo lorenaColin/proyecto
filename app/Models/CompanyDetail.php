@@ -25,4 +25,8 @@ class CompanyDetail extends Model
         'start_date_cert',
         'company_id'
     ];
+    public function company()
+    {
+        return $this->belongsTo('App\Models\Company');
+    }
 }
