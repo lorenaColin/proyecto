@@ -15,14 +15,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name', 254);
             $table->longText('address')->nullable();
-            $table->string('colony', 100)->nullable();
-            $table->string('municipality', 3);
             $table->string('cp', 5);
             $table->string('curp', 18)->nullable();
             $table->enum('status', ['Activo', 'Inactivo'])->default('Activo');
             $table->string('rfc', 13);
-            $table->string('state', 3);
-            $table->string('locality', 3)->nullable();
             $table->string('regime', 3);
             $table->string('employee_registration', 20)->nullable();
             $table->enum('type', ['P', 'H'])->default('H');
