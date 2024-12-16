@@ -49,36 +49,18 @@ class UserController extends Controller
         }
     }
 
-    public function iniciosesion(Request $request)
+    public function login(Request $request)
     {
 
         $user = User::where('email', $request->email)->first();
 
         if ($user && Hash::check($request->password, $user->password)) {
-
-            if ($user->email_verified_at == null) {
-                return ApiResponse::error('El correo electrónico no ha sido verificado. Por favor, verifica tu correo antes de iniciar sesión.', 403);
-            }
-
-            $credentials = $request->only('email', 'password');
-
-
-            if (!$user = User::where('email', $credentials['email'])->first()) {
-                return ApiResponse::error('Usuario no encontrado', 404);
-            }
-
-            if (!Hash::check($credentials['password'], $user->password)) {
-                return ApiResponse::error('Contraseña incorrecta', 401);
-            }
-
-            if (!$token = JWTAuth::fromUser($user)) {
-                return ApiResponse::error('No se pudo crear el token', 500);
-            }
-
+            $token = JWTAuth::fromUser($user);
+            User::where('id', $user->id)->update(['ultima_conexion'=> now()]);
             return ApiResponse::success('Inicio de sesión exitoso', 200, [
-                'user' => $user,
-                'token' => $token,
-                'type' => $user->type
+                'type' => $user->type,
+                'verified' => $user->email_verified_at ?? '',
+                'token' => $token
             ]);
         }
 
@@ -104,8 +86,7 @@ class UserController extends Controller
             return ApiResponse::success('El correo ya está verificado.', 200, []);
         } 
         if ($user instanceof User) {
-            $user->email_verified_at = now();
-            $user->save(); 
+            User::where('id', $user->id)->update(['ultima_conexion'=> now()]);
         } else {
             return ApiResponse::error('Usuario no válido.', 400);
         }
@@ -119,9 +100,6 @@ class UserController extends Controller
         ]);
     }
     
-
-
-
     /**
      * Display the specified resource.
      */

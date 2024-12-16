@@ -26,13 +26,13 @@ class CompanyRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'min:5', 'max:254'],
-            'address' => ['string'],
+            'address' => ['string', 'nullable'],
             'cp' => ['required', 'string', 'min:5', 'max:5'],
-            'curp' => ['string', 'min:18', 'max:18'],
+            'curp' => ['string', 'nullable', 'min:18', 'max:18'],
             'status' =>['string', 'in:Activo,Inactivo'],
             'rfc' => ['required', 'string', 'min:12', 'max:13'],
             'regime' => ['required', 'string', 'min:3', 'max:3'],
-            'employee_registration' => ['string','min:1', 'max:20'],
+            'employee_registration' => ['string', 'nullable', 'min:1', 'max:20'],
             'email'=>['required', 'email', 'string', 'max:75'],
             'phone'=>['required', 'string', 'min:10', 'max:13'],
         ];
@@ -41,7 +41,7 @@ class CompanyRequest extends FormRequest
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
-            'success'   => false,
+            'error'   => false,
             'message'   => 'Validation errors',
             'data'      => $validator->errors()
         ]));

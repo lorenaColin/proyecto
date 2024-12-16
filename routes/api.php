@@ -7,7 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomerController;
 // inicio de sesion
-Route::post('InicioSesion', [UserController::class, 'inicioSesion']);  
+Route::post('login', [UserController::class, 'login']);  
 Route::apiResource('users', UserController::class);
 Route::post('verifycode', [UserController::class, 'verifyCode']);
 Route::get('resendcode', [UserController::class, 'resendcode']);

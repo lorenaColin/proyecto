@@ -27,7 +27,8 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        //
+        $empresas = Company::select();
+        return ApiResponse::success('Listado de empresas', 200, $empresas);
     }
 
     /**

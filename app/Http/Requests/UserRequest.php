@@ -18,7 +18,7 @@ class UserRequest extends FormRequest
     }
     public function rules(): array
     {
-        if ($this->isMethod('post') && $this->path() === 'api/resendcode') {
+        if ($this->isMethod('get') && $this->path() === 'api/resendcode') {
             return [
                 'email' => ['required', 'email', 'exists:users,email'],
             ];
@@ -64,7 +64,7 @@ class UserRequest extends FormRequest
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
-            'success'   => false,
+            'error'   => true,
             'message'   => 'Validation errors',
             'data'      => $validator->errors()
         ]));
