@@ -30,7 +30,7 @@ class UserController extends Controller
         $validatedData = $request->validated();
         $validatedData['password'] = Hash::make($validatedData['password']);
         $validatedData['ultima_conexion'] = now();
-        $validatedData['code'] = strtoupper(Str::random(4));  
+        $validatedData['code'] = strtoupper(Str::random(4));
         $user = User::create($validatedData);
         $token = JWTAuth::fromUser($user);
         $this->sendVerificationEmail($user);
@@ -42,7 +42,7 @@ class UserController extends Controller
     private function sendVerificationEmail(User $user)
     {
         try {
-            $token = JWTAuth::fromUser($user);        
+            $token = JWTAuth::fromUser($user);
             Mail::to($user->email)->send(new \App\Mail\UserVerificationMail($user->name, $user->code, $token));
         } catch (\Exception $e) {
             throw new \Exception('Error al enviar el correo de verificación.');
@@ -51,37 +51,27 @@ class UserController extends Controller
 
     public function iniciosesion(Request $request)
     {
-
         $user = User::where('email', $request->email)->first();
-
         if ($user && Hash::check($request->password, $user->password)) {
-
             if ($user->email_verified_at == null) {
                 return ApiResponse::error('El correo electrónico no ha sido verificado. Por favor, verifica tu correo antes de iniciar sesión.', 403);
             }
-
             $credentials = $request->only('email', 'password');
-
-
             if (!$user = User::where('email', $credentials['email'])->first()) {
                 return ApiResponse::error('Usuario no encontrado', 404);
             }
-
             if (!Hash::check($credentials['password'], $user->password)) {
                 return ApiResponse::error('Contraseña incorrecta', 401);
             }
-
             if (!$token = JWTAuth::fromUser($user)) {
                 return ApiResponse::error('No se pudo crear el token', 500);
             }
-
             return ApiResponse::success('Inicio de sesión exitoso', 200, [
                 'user' => $user,
                 'token' => $token,
                 'type' => $user->type
             ]);
         }
-
         return ApiResponse::error('Credenciales incorrectas', 401);
     }
 
@@ -89,7 +79,7 @@ class UserController extends Controller
     public function verifyCode(UserRequest $request)
     {
         try {
-            $user = auth('api')->user(); 
+            $user = auth('api')->user();
             if (!$user) {
                 return ApiResponse::error('Usuario no autenticado o token inválido.', 401);
             }
@@ -99,13 +89,13 @@ class UserController extends Controller
         if ($user->code !== $request->code) {
             return ApiResponse::error('El código de verificación es incorrecto.', 400);
         }
-    
+
         if ($user->email_verified_at) {
             return ApiResponse::success('El correo ya está verificado.', 200, []);
-        } 
+        }
         if ($user instanceof User) {
             $user->email_verified_at = now();
-            $user->save(); 
+            $user->save();
         } else {
             return ApiResponse::error('Usuario no válido.', 400);
         }
@@ -118,17 +108,17 @@ class UserController extends Controller
             ]
         ]);
     }
-    
+
 
 
 
     /**
      * Display the specified resource.
      */
-   public function resendcode()
+    public function resendcode()
     {
         $user = auth('api')->user();
-    
+
         if (!$user) {
             return ApiResponse::error('Usuario no autenticado o token inválido.', 401);
         }
@@ -136,27 +126,37 @@ class UserController extends Controller
         if ($user->email_verified_at) {
             return ApiResponse::error('El correo ya ha sido verificado.', 400);
         }
-    
+
         $this->sendVerificationEmail($user);
-    
+
         return ApiResponse::success('Se ha reenviado un código de verificación a tu correo electrónico.', 200);
     }
-    
 
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function refreshToken()
     {
-        //
+        try {
+            if (!JWTAuth::getToken()) {
+                return response()->json(['error' => 'Token no proporcionado'], 400);
+            }
+            $currentToken = JWTAuth::getToken();
+            JWTAuth::setToken($currentToken);
+
+            $payload = JWTAuth::checkOrFail(); 
+            $newToken = JWTAuth::refresh($currentToken);
+
+            return response()->json([
+                'message' => 'Token renovado con éxito',
+                'token' => $newToken
+            ], 200);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return response()->json(['error' => 'Token invalido.'], 401);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return response()->json(['error' => ' token ha expirado y no puede ser refrescado'], 401);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json(['error' => 'Error con el token: ' . $e->getMessage()], 500);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+ 
+
 }
