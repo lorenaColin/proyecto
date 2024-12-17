@@ -121,7 +121,7 @@ class UserController extends Controller
     {
         try {
             if (!JWTAuth::getToken()) {
-                return ApiResponse::error('Token no propórcionado.', 401);ApiResponse::error('Token no propórcionado.', 401);
+                return ApiResponse::error('Token no propórcionado.', 401);
             }
             $currentToken = JWTAuth::getToken();
             JWTAuth::setToken($currentToken);
@@ -129,10 +129,10 @@ class UserController extends Controller
             $payload = JWTAuth::checkOrFail(); 
             $newToken = JWTAuth::refresh($currentToken);
 
-            return response()->json([
+            return ApiResponse::success('Se ha reenviado un código de verificación a tu correo electrónico.', 200, [
                 'message' => 'Token renovado con éxito',
                 'token' => $newToken
-            ], 200);
+            ]);
         } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
             return ApiResponse::error('Token invalido.', 401);
         } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
