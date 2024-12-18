@@ -10,8 +10,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -62,6 +64,12 @@ class UserController extends Controller
             ]);
         }
         return ApiResponse::error('Credenciales incorrectas', 401);
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        return response()->json(['message' => 'Successfully logged out']);
     }
 
 
@@ -117,8 +125,28 @@ class UserController extends Controller
         return ApiResponse::success('Se ha reenviado un código de verificación a tu correo electrónico.', 200);
     }
 
-    public function refreshToken()
+    public function refresh()
     {
+        return $this->respondWithToken(auth()->refresh());
+    }
+
+    public function respondWithToken($token)
+    {
+        try {
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 60
+            ]);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'El token ha caducado y ya no se puede actualizar'
+            ]);
+        }
+        
+
+        /*
         try {
             if (!JWTAuth::getToken()) {
                 return ApiResponse::error('Token no propórcionado.', 401);
@@ -140,6 +168,7 @@ class UserController extends Controller
         } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
             return ApiResponse::error('Error con el token', 500, $e->getMessage());
         }
+            */
     }
 
  

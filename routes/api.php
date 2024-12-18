@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\Controladores_Sat\CpController;
+use App\Http\Controllers\SAT\UtilController;
 use App\Http\Controllers\CustomerController;
 // inicio de sesion
 Route::post('login', [UserController::class, 'login']);  
@@ -20,6 +20,7 @@ Route::apiResource('customers', CustomerController::class);
 Route::post('customerbyuser', [CustomerController::class, 'customerbyuser']);
 
 //CatalogosSat 
-Route::get('verificarCP', [CpController::class, 'verificarCP']);
+Route::get('searchCodePostal', [UtilController::class, 'searchCodePostal']);
  // token 
-Route::post('refresh', [UserController::class, 'refreshToken']);
+Route::post('refresh', [UserController::class, 'refresh']);
+Route::post('logout', [UserController::class, 'logout'])->middleware('auth:api');

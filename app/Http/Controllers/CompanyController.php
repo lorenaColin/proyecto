@@ -27,8 +27,52 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        $empresas = Company::select();
-        return ApiResponse::success('Listado de empresas', 200, $empresas);
+        // var_dump(auth('api')->id());
+        $user = auth('api')->user();
+
+        if (!$user) {
+            return ApiResponse::error('Usuario no autenticado o token incorrecto ', 401);
+        }
+        $tipo = $user->type; 
+        $userId = $user->id;
+        switch ($tipo) {
+            case "adm":
+                $empresas = Company::select('companies.id', 'companies.name', 'companies.rfc', 'companies.status', 'company_details.tones_incluide')
+                ->join('company_details', 'company_details.company_id', '=', 'companies.id') 
+                ->get();
+                return ApiResponse::success(
+                    'Datos obtenidos', 200, $empresas
+                );
+    
+            case "col": 
+                $empresas = Company::select('companies.id', 'companies.name')
+                    ->join('collaborator_company', 'collaborator_company.company_id', '=', 'companies.id')
+                    ->where('collaborator_company.collaborator_id', '=', $userId)
+                    ->get();
+    
+                return ApiResponse::success(
+                    'Datos obtenidos',  200, [
+                        'type' => $tipo,
+                        'id' => $userId,
+                        'companies' => $empresas
+                    ]
+                );
+    
+            default: 
+                $empresas = Company::select('companies.id', 'companies.name')
+                    ->where('id_usr_create', '=', $userId)
+                    ->get();
+               $empresas = Company::select('id', 'name', 'rfc')->with(['companyDetail:company_id,tones_incluide'])->where('id_usr_create', $userId)->get();  
+                return ApiResponse::success(
+                    'Datos obtenidos',
+                    200,      
+                    [
+                        'type' => $tipo,
+                        'id' => $userId,
+                        'companies' => $empresas
+                    ]
+                );
+        }
     }
 
     /**
