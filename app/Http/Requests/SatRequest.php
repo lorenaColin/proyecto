@@ -23,9 +23,9 @@ class SatRequest extends FormRequest
      */
     public function rules(): array
     {
-        if ($this->isMethod('get') && $this->path() === 'api/verificarCP') {
+        if ($this->isMethod('get') && $this->path() === 'api/searchCodePostal') {
             return [
-                'cp' => ['string', 'min:5', 'max:5'],
+                'cp' => ['required','string', 'min:5', 'max:5'],
             ];
         }
     }
@@ -33,7 +33,7 @@ class SatRequest extends FormRequest
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
-            'success'   => false,
+            'success'   => true,
             'message'   => 'Validation errors',
             'data'      => $validator->errors()
         ]));
@@ -43,6 +43,8 @@ class SatRequest extends FormRequest
     public function messages()
     {
         return [
+            'cp.required' => 'El código postal es requerido.',
+            'cp.string' => 'El nombre debe ser una cadena.',
             'cp.min' => 'El código postal tiene que tener mínimo 5 caracteres.',
             'cp.max' => 'El código postal tiene que tener máximo 5 caracteres.',
         
