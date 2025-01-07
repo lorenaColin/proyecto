@@ -13,6 +13,8 @@ Route::apiResource('users', UserController::class);
 Route::post('verifycode', [UserController::class, 'verifyCode']);
 Route::get('resendcode', [UserController::class, 'resendcode']);
 
+
+// Route::middleware('auth:api')->group(function () {
 //company
 Route::apiResource('companies', CompanyController::class);
 // clientes
@@ -21,6 +23,9 @@ Route::post('customerbyuser', [CustomerController::class, 'customerbyuser']);
 
 //CatalogosSat 
 Route::get('searchCodePostal', [UtilController::class, 'searchCodePostal']);
+// });
+
+
  // token 
 Route::post('refresh', [UserController::class, 'refresh']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:api');

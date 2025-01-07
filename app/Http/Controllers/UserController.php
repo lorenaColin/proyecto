@@ -55,21 +55,30 @@ class UserController extends Controller
     {
         $user = User::where('email', $request->email)->first();
         if ($user && Hash::check($request->password, $user->password)) {
-            $token = JWTAuth::fromUser($user);
-            User::where('id', $user->id)->update(['ultima_conexion'=> now()]);
+            //Obtiene la primer compañia
+            $companyUuid = null;
+            $company = $user->companies()->first();
+            if ($company) {
+                $companyUuid = $company->id;
+            }
+            $customClaims = [
+                'company_uuid' => $companyUuid,
+            ];
+            $token = JWTAuth::claims($customClaims)->fromUser($user);
             return ApiResponse::success('Inicio de sesión exitoso', 200, [
                 'type' => $user->type,
                 'verified' => $user->email_verified_at ?? '',
                 'token' => $token
             ]);
-        }
+        } 
         return ApiResponse::error('Credenciales incorrectas', 401);
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
-        return response()->json(['message' => 'Successfully logged out']);
+        JWTAuth::invalidate(JWTAuth::getToken());
+
+        return response()->json(['message' => 'Sesión cerrada con exito']);
     }
 
 
