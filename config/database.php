@@ -65,7 +65,7 @@ return [
             'driver' => 'mysql',
             'host' => env('DB_HOST2', '127.0.0.1'),
             'port' => env('DB_PORT2', '3306'),
-            'database' => env('DB_DATABASE2', 'cat'),
+            'database' => env('DB_DATABASE2', 'catalogo'),
             'username' => env('DB_USERNAME2', 'root'),
             'password' => env('DB_PASSWORD2', ''),
             'unix_socket' => env('DB_SOCKET', ''),

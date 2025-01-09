@@ -20,7 +20,16 @@ Route::apiResource('customers', CustomerController::class);
 Route::post('customerbyuser', [CustomerController::class, 'customerbyuser']);
 
 //CatalogosSat 
-Route::get('searchCodePostal', [UtilController::class, 'searchCodePostal']);
+Route::get(uri: 'searchCodePostal', action: [UtilController::class, 'searchCodePostal']);
+Route::get(uri: 'searchClavProdSer', action: [UtilController::class, 'searchClavProdSer']);
+Route::get(uri: 'searchClavUnidad', action: [UtilController::class, 'searchClavUnidad']);
+Route::get(uri: 'searchPais', action: [UtilController::class, 'searchPais']);
+
+
+
+
+
+
  // token 
 Route::post('refresh', [UserController::class, 'refresh']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:api');
