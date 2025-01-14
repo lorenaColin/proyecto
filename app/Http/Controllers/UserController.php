@@ -139,20 +139,51 @@ class UserController extends Controller
         return $this->respondWithToken(auth()->refresh());
     }
 
-    public function respondWithToken($token)
+    protected function respondWithToken($token)
     {
-        try {
-            return response()->json([
+        $user = JWTauth::user();
+
+        return response()->json([
+            'status' => 'success',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                // 'roles' => $user->getRoleNames(),
+                // 'permissions' => $user->getAllPermissions()->pluck('name'),
+            ],
+            'authorisation' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => auth()->factory()->getTTL() * 60
-            ]);
-        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-            return response()->json([
-                'error' => true,
-                'message' => 'El token ha caducado y ya no se puede actualizar'
-            ]);
+                'expires_in' => JWTauth::factory()->getTTL() * 60, // Tiempo en segundos
+            ]
+        ]);
+    }
+
+    public function refreshToken(Request $request)
+    {
+        try {
+            $newToken = JWTAuth::refresh(JWTAuth::getToken()); // Renueva el token
+            return response()->json(['token' => $newToken], 200);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Could not refresh token'], 401);
         }
+    }
+
+    // public function respondWithToken($token)
+    // {
+    //     try {
+    //         return response()->json([
+    //             'access_token' => $token,
+    //             'token_type' => 'bearer',
+    //             'expires_in' => auth()->factory()->getTTL() * 60
+    //         ]);
+    //     } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+    //         return response()->json([
+    //             'error' => true,
+    //             'message' => 'El token ha caducado y ya no se puede actualizar'
+    //         ]);
+    //     }
         
 
         /*
@@ -178,7 +209,7 @@ class UserController extends Controller
             return ApiResponse::error('Error con el token', 500, $e->getMessage());
         }
             */
-    }
+    // }
 
  
 
