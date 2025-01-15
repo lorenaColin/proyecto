@@ -35,5 +35,5 @@ Route::get('searchCodePostal', [UtilController::class, 'searchCodePostal']);
 
 
  // token 
-Route::post('refresh', [UserController::class, 'refreshToken']);
+Route::post('refresh', [UserController::class, 'refresh']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:api');
