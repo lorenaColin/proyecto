@@ -72,14 +72,15 @@ class UserController extends Controller
                 'verified' => $user->email_verified_at ?? '',
                 'token' => $token
             ]);
-        }
+        } 
         return ApiResponse::error('Credenciales incorrectas', 401);
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
-        return response()->json(['message' => 'Successfully logged out']);
+        JWTAuth::invalidate(JWTAuth::getToken());
+
+        return response()->json(['message' => 'Sesión cerrada con exito']);
     }
 
 

@@ -13,6 +13,8 @@ Route::apiResource('users', UserController::class);
 Route::post('verifycode', [UserController::class, 'verifyCode']);
 Route::get('resendcode', [UserController::class, 'resendcode']);
 
+
+// Route::middleware('auth:api')->group(function () {
 //company
 Route::apiResource('companies', CompanyController::class);
 // clientes
@@ -28,6 +30,8 @@ Route::get(uri: 'searchPais', action: [UtilController::class, 'searchPais']);
 
 
 
+Route::get('searchCodePostal', [UtilController::class, 'searchCodePostal']);
+// });
 
 
  // token 

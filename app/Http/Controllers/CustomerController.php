@@ -26,7 +26,10 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        //
+        $user = auth('api')->user();
+        if (!$user) {
+            return ApiResponse::error('Usuario no autenticado o token incorrecto ', 401);
+        }
     }
 
     /**
@@ -34,7 +37,7 @@ class CustomerController extends Controller
      */
     public function store(CustomerRequest $request)
     {
-        try {           
+        try {
             $cliente = Customer::create($request->validated());
             return ApiResponse::success('Cliente creado correctamente', 201, $cliente);
         } catch (ValidationException $e) {
@@ -64,7 +67,7 @@ class CustomerController extends Controller
     public function update(CustomerRequest $request, string $id)
     {
         try {
-            
+
             $cliente = Customer::findOrFail($id);
             $cliente->update($request->validated());
 
@@ -95,9 +98,9 @@ class CustomerController extends Controller
     //             ->join('collaborator_company', 'collaborator_company.company_id',  '=', 'companies.id' )
     //             ->where('collaborator_company.collaborator_id', '=', $user->id)
     //             ->get();
-        
+
     //         return ApiResponse::success('Datos obtenidos', 200, ['type' => $user->type,'id' => $user->id, 'companies' => $empresas ]);
-                
+
     //         default:
     //         $empresas = Company::select('companies.id', 'companies.name')->where('id_usr_create', '=', $user->id)->get();
     //         return ApiResponse::success('Datos obtenidos', 200, ['type' => $user->type, 'id' => $user->id, 'companies' => $empresas ]);
@@ -107,49 +110,51 @@ class CustomerController extends Controller
 
     public function customerbyuser()
     {
-        $user = auth('api')->user();  
+        $user = auth('api')->user();
         if (!$user) {
             return ApiResponse::error('Usuario no autenticado o token incorrecto ', 401);
-        }    
-        $tipo = $user->type; 
-        $userId = $user->id;   
+        }
+        $tipo = $user->type;
+        $userId = $user->id;
         switch ($tipo) {
             case "adm":
                 $empresas = Company::select('companies.id', 'companies.name')->get();
                 return ApiResponse::success(
-                    'Datos obtenidos', 200,
+                    'Datos obtenidos',
+                    200,
                     [
                         'type' => $tipo,
                         'id' => $userId,
                         'companies' => $empresas
                     ]
                 );
-    
-            case "col": 
+
+            case "col":
                 $empresas = Company::select('companies.id', 'companies.name')
                     ->join('collaborator_company', 'collaborator_company.company_id', '=', 'companies.id')
                     ->where('collaborator_company.collaborator_id', '=', $userId)
                     ->get();
-    
+
                 return ApiResponse::success(
-                    'Datos obtenidos',  200,
+                    'Datos obtenidos',
+                    200,
                     [
                         'type' => $tipo,
                         'id' => $userId,
                         'companies' => $empresas
                     ]
                 );
-    
-            default: 
+
+            default:
                 $empresas = Company::select('companies.id', 'companies.name')
 
                     ->where('id_usr_create', '=', $userId)
                     ->get();
-               $empresas = Company::select('id', 'name', 'rfc')->with(['companyDetail:company_id,tones_incluide'])->where('id_usr_create', $userId)->get();  
-    
+                $empresas = Company::select('id', 'name', 'rfc')->with(['companyDetail:company_id,tones_incluide'])->where('id_usr_create', $userId)->get();
+
                 return ApiResponse::success(
                     'Datos obtenidos',
-                    200,      
+                    200,
                     [
                         'type' => $tipo,
                         'id' => $userId,
@@ -158,6 +163,4 @@ class CustomerController extends Controller
                 );
         }
     }
-    
-
 }
