@@ -136,9 +136,14 @@ class UserController extends Controller
         return ApiResponse::success('Se ha reenviado un código de verificación a tu correo electrónico.', 200);
     }
 
-    // public function refresh()
+    // public function refreshToken(Request $request)
     // {
-    //     return $this->respondWithToken(auth()->refresh());
+    //     try {
+    //         $newToken = JWTAuth::refresh(JWTAuth::getToken()); // Renueva el token
+    //         return response()->json(['token' => $newToken], 200);
+    //     } catch (JWTException $e) {
+    //         return response()->json(['error' => 'Could not refresh token'], 401);
+    //     }
     // }
 
     // public function respondWithToken($token)
