@@ -56,6 +56,16 @@ class UserController extends Controller
         $user = User::where('email', $request->email)->first();
         if ($user && Hash::check($request->password, $user->password)) {
             $token = JWTAuth::fromUser($user);
+             //Obtiene la primer compañia
+             $companyUuid = null;
+             $company = $user->companies()->first();
+             if ($company) {
+                 $companyUuid = $company->id;
+             }
+             $customClaims = [
+                 'company_uuid' => $companyUuid,
+             ];
+             $token = JWTAuth::claims($customClaims)->fromUser($user);
             User::where('id', $user->id)->update(['ultima_conexion'=> now()]);
             return ApiResponse::success('Inicio de sesión exitoso', 200, [
                 'type' => $user->type,
@@ -125,25 +135,25 @@ class UserController extends Controller
         return ApiResponse::success('Se ha reenviado un código de verificación a tu correo electrónico.', 200);
     }
 
-    public function refresh()
-    {
-        return $this->respondWithToken(auth()->refresh());
-    }
+    // public function refresh()
+    // {
+    //     return $this->respondWithToken(auth()->refresh());
+    // }
 
-    public function respondWithToken($token)
-    {
-        try {
-            return response()->json([
-                'access_token' => $token,
-                'token_type' => 'bearer',
-                'expires_in' => auth()->factory()->getTTL() * 60
-            ]);
-        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-            return response()->json([
-                'error' => true,
-                'message' => 'El token ha caducado y ya no se puede actualizar'
-            ]);
-        }
+    // public function respondWithToken($token)
+    // {
+    //     try {
+    //         return response()->json([
+    //             'access_token' => $token,
+    //             'token_type' => 'bearer',
+    //             'expires_in' => auth()->factory()->getTTL() * 60
+    //         ]);
+    //     } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+    //         return response()->json([
+    //             'error' => true,
+    //             'message' => 'El token ha caducado y ya no se puede actualizar'
+    //         ]);
+    //     }
         
 
         /*
@@ -169,8 +179,17 @@ class UserController extends Controller
             return ApiResponse::error('Error con el token', 500, $e->getMessage());
         }
             */
-    }
+    // }
 
+    public function refresh(Request $request)
+    {
+        try {
+            $newToken = JWTAuth::refresh(JWTAuth::getToken()); // Renueva el token
+            return response()->json(['token' => $newToken], 200);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Could not refresh token'], 401);
+        }
+    }
  
 
 }
