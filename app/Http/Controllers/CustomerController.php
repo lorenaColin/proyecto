@@ -26,10 +26,19 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $user = auth('api')->user();
-        if (!$user) {
-            return ApiResponse::error('Usuario no autenticado o token incorrecto ', 401);
-        }
+        // $user = auth('api')->user();
+        // if (!$user) {
+        //     return ApiResponse::error('Usuario no autenticado o token incorrecto ', 401);
+        // }
+
+        $customers = Customer::all();
+
+        return ApiResponse::success(
+            'Lista de clientes',
+            200,
+            $customers
+        );
+        
     }
 
     /**

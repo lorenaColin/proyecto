@@ -27,9 +27,9 @@ class CustomerRequest extends FormRequest
 
             'rfc' => ['required', 'string', 'min:12', 'max:13'],
             'name' => ['required', 'string', 'min:5', 'max:254'],
-            'cp' => ['string', 'min:5', 'max:5'],
-            'residence' => ['string', 'min:3', 'max:3'],
-            'num_reg_id_trib' => ['string', 'min:1', 'max:40'],
+            'cp' => ['nullable', 'min:5', 'max:5'],
+            'residence' => ['nullable', 'min:3', 'max:3'],
+            'num_reg_id_trib' => ['nullable', 'min:1', 'max:40'],
             'regime' => ['required', 'string', 'min:3', 'max:3'],
             'address' => ['string'],
             'email'=>['string','email', 'max:75'],
