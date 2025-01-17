@@ -471,6 +471,8 @@ class Cfdi {
         }
 
         $this->setcartaPorte31Ubicaciones();
+        $this->setCartaPorte31Mercancias();
+        $this->setCartaPorte31AutoTransporte();
 
     }
 
@@ -479,36 +481,180 @@ class Cfdi {
         $cartaPorte31Ubicaciones = $this->xml->createElement("cartaporte31:Ubicaciones");
         $this->cartaPorte31->appendChild($cartaPorte31Ubicaciones);
 
+        $listaUbicaciones = [];
         foreach ($listaUbicaciones as $key => $ubicacion) {
 
             $cartaPorte31Ubicacion = $this->xml->createElement("cartaporte31:Ubicacion");
             $cartaPorte31Ubicaciones->appendChild($cartaPorte31Ubicacion);
 
+            //Inicia datos requeridos
             $cartaPorte31Ubicacion->setAttribute("TipoUbicacion", $ubicacion["tipoUbicacion"]);
+            $cartaPorte31Ubicacion->setAttribute("RFCRemitenteDestinatario", $ubicacion["rfcRemitenteDestinatario"]);
             $cartaPorte31Ubicacion->setAttribute("FechaHoraSalidaLlegada", $ubicacion["fechaHoraSalidaLlegada"].":00");
-            $cartaPorte31Ubicacion->setAttribute("RFCRemitenteDestinatario", $ubicacion["rFCRemitenteDestinatario"]);
+            //Termina datos requeridos
+
+            //Inicia datos opcionales
+            if($ubicacion["nombreRemitenteDestinatario"] != ""){
+                $cartaPorte31Ubicacion->setAttribute("NombreRemitenteDestinatario", $ubicacion["nombreRemitenteDestinatario"]);
+            }
+            //Termina datos opcionales
+
+            //Inicia datos condicionales
+            if($ubicacion["idUbicacion"] != ""){
+                $cartaPorte31Ubicacion->setAttribute("IDUbicacion", $ubicacion["idUbicacion"]);
+            }
+
+            if($ubicacion["rfcRemitenteDestinatario"] == 'XEXX010101000'){
+                $cartaPorte31Ubicacion->setAttribute("NumRegIdTrib", $ubicacion["numRegIdTrib"]);
+                $cartaPorte31Ubicacion->setAttribute("ResidenciaFiscal", $ubicacion["residenciaFiscal"]);
+            }
 
             if($ubicacion["tipoUbicacion"] == "Destino"){
-                $cartaPorte31Ubicacion->setAttribute("DistanciaRecorrida", $ubicacion["distancia"]);
+                $cartaPorte31Ubicacion->setAttribute("DistanciaRecorrida", $ubicacion["distanciaRecorrida"]);
             }
+            //Termina datos condicionales
 
-            if($u->id_ubicacion != ""){
-                $this->cartaPorteUbicacion->setAttribute("IDUbicacion", $u->id_ubicacion);
+            $cartaPorte31UbicacionDomicilio = $this->xml->createElement("cartaporte31:Domicilio");
+            $cartaPorte31Ubicacion->appendChild($cartaPorte31UbicacionDomicilio);
+
+            //Inicia datos requeridos
+            $cartaPorte31UbicacionDomicilio->setAttribute("Pais", $ubicacion["pais"]);
+            $cartaPorte31UbicacionDomicilio->setAttribute("CodigoPostal", $ubicacion["codigoPostal"]);
+            $cartaPorte31UbicacionDomicilio->setAttribute("Estado", $ubicacion["estado"]);
+
+            //Inicia datos opcionales
+            if($ubicacion["calle"] != ""){
+                $this->cartaPorteUbicacionDomicilio->setAttribute("Calle", $ubicacion["calle"]);
             }
-            if($u->nombre != ""){
-                $this->cartaPorteUbicacion->setAttribute("NombreRemitenteDestinatario", $u->nombre);
+            if($ubicacion["numeroExterior"] != ""){
+                $this->cartaPorteUbicacionDomicilio->setAttribute("NumeroExterior", $ubicacion["numeroExterior"]);
             }
-            if($u->rfc == 'XEXX010101000'){
-                $this->cartaPorteUbicacion->setAttribute("NumRegIdTrib", $u->num_reg_trib);
-                $this->cartaPorteUbicacion->setAttribute("ResidenciaFiscal", $u->r_fiscal);
+            if($ubicacion["numeroInterior"] != ""){
+                $this->cartaPorteUbicacionDomicilio->setAttribute("NumeroInterior", $ubicacion["numeroInterior"]);
             }
+            if($ubicacion["colonia"] != ""){
+                $this->cartaPorteUbicacionDomicilio->setAttribute("Colonia", $ubicacion["colonia"]);
+            }
+            if($ubicacion["localidad"] != ""){
+                $this->cartaPorteUbicacionDomicilio->setAttribute("Localidad", $ubicacion["localidad"]);
+            }
+            if($ubicacion["referencia"] != ""){
+                $this->cartaPorteUbicacionDomicilio->setAttribute("Referencia", $ubicacion["referencia"]);
+            }
+            if($ubicacion["municipio"] != ""){
+                $this->cartaPorteUbicacionDomicilio->setAttribute("Municipio", $ubicacion["municipio"]);
+            }
+            //Termina datos opcionales
         }
+    }
+
+    public function setCartaPorte31Mercancias(){
+        $this->mercancias = $this->xml->createElement("cartaporte31:Mercancias");
+        $this->cartaPorte31->appendChild($this->mercancias);
+
+        //Inicia datos requeridos
+        $this->mercancias->setAttribute("PesoBrutoTotal", "");
+        $this->mercancias->setAttribute("UnidadPeso", "");
+        $this->mercancias->setAttribute("NumTotalMercancias", "");
+
+        //Inicia datos condicionales
+        $logisticaInversaRecoleccionDevolucion = "";
+        if($logisticaInversaRecoleccionDevolucion == "Sí"){
+            $this->mercancias->setAttribute("LogisticaInversaRecoleccionDevolucion", $logisticaInversaRecoleccionDevolucion);
+        }
+        //Termina datos condicionales
+
+        $listaMercancias = [];
+        foreach ($listaMercancias as $key => $mercancia) {
+            $mercancia = $this->xml->createElement("cartaporte31:Mercancia");
+            $this->mercancias->appendChild($mercancia);
+
+            //Inicia datos requeridos
+            $mercancia->setAttribute("BienesTransp", $mercancia["bienesTransp"]);
+            $mercancia->setAttribute("Descripcion", $mercancia["descripcion"]);
+            $mercancia->setAttribute("Cantidad", $mercancia["cantidad"]);
+            $mercancia->setAttribute("ClaveUnidad", $mercancia["claveUnidad"]);
+            //Termina datos requeridos
+
+
+            //Inicia datos opcionales
+            $mercancia->setAttribute("Unidad", $mercancia["unidad"]);
+            //Termina datos opcionales
+
+
+            //Inicia datos condicionales
+            if($mercancia["dimensiones"] != ""){
+                $mercancia->setAttribute("Dimensiones", $mercancia["dimensiones"]);
+            }
+            if($mercancia["materialPeligroso"] == "1" || $mercancia["materialPeligroso"] == "0,1"){
+                $mercancia->setAttribute("MaterialPeligroso", $mercancia["materialPeligroso"]);
+                if($mercancia["cveMaterialPeligroso"] != ""){
+                    $mercancia->setAttribute("CveMaterialPeligroso", $mercancia["cveMaterialPeligroso"]);
+                    $mercancia->setAttribute("Embalaje", $mercancia["embalaje"]);
+                    $mercancia->setAttribute("DescripEmbalaje", $mercancia["descripEmbalaje"]);
+                }
+                
+            }
+            //Termina datos condicionales
+        }
+    }
+
+    public function setCartaPorte31AutoTransporte(){
+        $autoTransporte = $this->xml->createElement("cartaporte31:Autotransporte");
+        $this->mercancias->appendChild($autoTransporte);
+        
+        //Inicia datos requeridos
+        $autoTransporte->setAttribute("PermSCT", "");
+        $autoTransporte->setAttribute("NumPermisoSCT", "");
+        //Termina datos requeridos
+
+        $identificacionVehicular = $this->xml->createElement("cartaporte31:IdentificacionVehicular");
+        $autoTransporte->appendChild($identificacionVehicular);
+
+        //Inicia datos requeridos
+        $identificacionVehicular->setAttribute("ConfigVehicular", "");
+        $identificacionVehicular->setAttribute("PesoBrutoVehicular", "");
+        $identificacionVehicular->setAttribute("PlacaVM", "");
+        $identificacionVehicular->setAttribute("AnioModeloVM", "");
+        //Termina datos requeridos
+
+        $seguros = $this->xml->createElement("cartaporte31:Seguros");
+        $autoTransporte->appendChild($seguros);
+        //Inicia datos requeridos
+        $seguros->setAttribute("AseguraRespCivil", "");
+        $seguros->setAttribute("PolizaRespCivil", "");
+        //Termina datos requeridos
+
+        //Inicia datos condicionales
+        $aseguraMedAmbiente = "";
+        if($aseguraMedAmbiente != ""){
+            $seguros->setAttribute("AseguraMedAmbiente", "");
+            $seguros->setAttribute("PolizaMedAmbiente", "");
+        }
+
+        $aseguraCarga = "";
+        if($aseguraCarga != ""){
+            $seguros->setAttribute("AseguraCarga", "");
+            $seguros->setAttribute("PolizaCarga", "");
+        }
+
+        $primaSeguro = "";
+        if($primaSeguro != ""){
+            $seguros->setAttribute("PrimaSeguro", $primaSeguro);
+        }
+
+        //Termina datos condicionales
+
+        //Inicia datos opcionales
+
+        //Termina datos opcionales
+
 
     }
 
 
     public function getIdCCP(){
-        return "ccc".substr(Uuid::uuid4(), 3);
+        return "CCC".substr(Uuid::uuid4(), 3);
     }
 
 
