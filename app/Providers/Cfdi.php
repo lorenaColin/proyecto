@@ -239,6 +239,17 @@ class Cfdi {
             }
             //Termina nodo impuestos translados
 
+            //Inicia nodo cuentaPredial
+            if(count($listaPrediales) > 0){
+                foreach ($listaPrediales as $numeroPredial) {
+                    $predial = $this->xml->createElement("cfdi:CuentaPredial");
+                    $this->concepto->appendChild($predial);
+                    $predial->setAttribute("Numero", $numeroPredial);
+                }
+            }
+            
+            //Termina nodo cuentaPredial
+
             
         }
             
@@ -462,7 +473,7 @@ class Cfdi {
         $this->cartaPorte31->setAttribute("TotalDistRec", "");
         $this->cartaPorte31->setAttribute("TranspInternac", "");
         
-        $registroIstmo = "{";
+        $registroIstmo = "";
 
         if($registroIstmo == 'Sí'){
             $this->cartaPorte31->setAttribute("RegistroISTMO", $registroIstmo);
