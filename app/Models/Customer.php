@@ -24,10 +24,13 @@ class Customer extends Model
         'email',
         'phone',
         'status',
+        'payment_form',
+        'payment_method',
         'company_id',
     ];
 
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
         static::creating(function ($model) {

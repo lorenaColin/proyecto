@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class CustomerRequest extends FormRequest
 {
@@ -25,7 +26,7 @@ class CustomerRequest extends FormRequest
     {
         return [
 
-            'rfc' => ['required', 'string', 'min:12', 'max:13'],
+            'rfc' => ['required', 'string', 'min:12', 'max:13', Rule::unique('customers', 'rfc')->ignore($this->route('customer'))],
             'name' => ['required', 'string', 'min:5', 'max:254'],
             'cp' => ['nullable', 'min:5', 'max:5'],
             'residence' => ['nullable', 'min:3', 'max:3'],
@@ -35,6 +36,8 @@ class CustomerRequest extends FormRequest
             'email'=>['string','email', 'max:75'],
             'phone'=>['string', 'min:10', 'max:13'],
             'status' =>['string', 'in:Activo,Inactivo'],
+            'payment_form' =>['string', 'nullable'],
+            'payment_method'=>['string', 'nullable'],
             'company_id' => ['required', 'string', 'exists:companies,id'],
         ];
     }
@@ -57,6 +60,7 @@ class CustomerRequest extends FormRequest
             'rfc.string' => 'El rfc debe ser una cadena.',
             'rfc.min' => 'El rfc tiene que tener mínimo 12 caracteres.',
             'rfc.max' => 'El rfc tiene que tener máximo 13 caracteres.',
+            'rfc.unique' => 'El rfc ya esta en uso.',
             'name.required' => 'El nombre es requerido.',
             'name.string' => 'El nombre debe ser una cadena.',
             'name.min' => 'El nombre tiene que tener mínimo 5 caracteres.',
