@@ -7,6 +7,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\SAT\UtilController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SerieController;
+
 // inicio de sesion
 Route::post('login', [UserController::class, 'login']);  
 Route::apiResource('users', UserController::class);
@@ -37,3 +40,9 @@ Route::get('searchCodePostal', [UtilController::class, 'searchCodePostal']);
  // token 
 Route::post('refresh', [UserController::class, 'refresh']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:api');
+
+//Series 
+Route::apiResource('serie', SerieController::class);
+// productos
+Route::apiResource('products', ProductController::class);
+

@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('series', function (Blueprint $table) {
             $table->id();
-            $table->integer('serie');
-            $table->string('folio',40);
+            $table->string('serie',length: 25);
+            $table->integer('folio' );
             $table->string('tipoComprobante',40);
             $table->foreignUuid('uuid_company')
             ->references('id')
             ->on('companies')
             ->onDelete('cascade')
             ->onUpdate('cascade');
-            $table->enum('status', ['Activo', 'Inactivo']);
+            $table->boolean('status');
+
 
             $table->timestamps();
         });
