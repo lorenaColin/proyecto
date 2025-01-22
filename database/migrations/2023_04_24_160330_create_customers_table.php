@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('phone', 13)->nullable();
             $table->string('payment_form', 2);
             $table->string('payment_method', 3);
-            $table->enum('status', ['Activo', 'Inactivo'])->default('Activo');
+            $table->boolean('status');
             $table->foreignUuid('company_id')
             ->references('id')
             ->on('companies')

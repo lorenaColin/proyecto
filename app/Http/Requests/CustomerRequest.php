@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class CustomerRequest extends FormRequest
@@ -24,20 +25,32 @@ class CustomerRequest extends FormRequest
      */
     public function rules(): array
     {
+        $genericos = ['XAXX010101000', 'XEXX010101000'];
         return [
 
-            'rfc' => ['required', 'string', 'min:12', 'max:13', Rule::unique('customers', 'rfc')->ignore($this->route('customer'))],
+            'rfc' => [
+                'required',
+                'string',
+                'min:12',
+                'max:13',
+                Rule::unique('customers', 'rfc')
+                ->where(function ($query) use ($genericos) {
+                    return $query->whereNotIn('rfc', $genericos) 
+                                 ->where('company_id', $this->input('company_id'));
+                })
+                ->ignore($this->route('customer')), 
+            ],
             'name' => ['required', 'string', 'min:5', 'max:254'],
             'cp' => ['nullable', 'min:5', 'max:5'],
             'residence' => ['nullable', 'min:3', 'max:3'],
             'num_reg_id_trib' => ['nullable', 'min:1', 'max:40'],
             'regime' => ['required', 'string', 'min:3', 'max:3'],
             'address' => ['string'],
-            'email'=>['string','email', 'max:75'],
-            'phone'=>['string', 'min:10', 'max:13'],
-            'status' =>['string', 'in:Activo,Inactivo'],
-            'payment_form' =>['string', 'nullable'],
-            'payment_method'=>['string', 'nullable'],
+            'email' => ['string', 'email', 'max:75'],
+            'phone' => ['string', 'min:10', 'max:13'],
+            'status' => 'required',
+            'payment_form' => ['string', 'nullable'],
+            'payment_method' => ['string', 'nullable'],
             'company_id' => ['required', 'string', 'exists:companies,id'],
         ];
     }
@@ -85,12 +98,10 @@ class CustomerRequest extends FormRequest
             'phone.string' => 'El teléfono debe ser una cadena.',
             'phone.min' => 'El teléfono tiene que tener mínimo 10 caracteres.',
             'phone.max' => 'El teléfono tiene que tener máximo 13 caracteres.',
-            'status.string' => 'El status debe ser una cadena.',
-            'status.in' => 'El status deben ser "Activo" o "Inactivo".',
+            'status.required' => 'El status es requerido.',
             'company_id.required' => 'La empresa es requerida.',
             'company_id.string' => 'La empresa debe ser una cadena.',
             'company_id.exists' => 'La empresa no existe.',
         ];
-
     }
 }
