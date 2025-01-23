@@ -10,6 +10,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SerieController;
 
+use App\Http\Controllers\InvoiceController;
 // inicio de sesion
 Route::post('login', [UserController::class, 'login']);  
 Route::apiResource('users', UserController::class);
@@ -46,3 +47,5 @@ Route::apiResource('serie', SerieController::class);
 // productos
 Route::apiResource('products', ProductController::class);
 
+
+Route::apiResource('invoices', InvoiceController::class);

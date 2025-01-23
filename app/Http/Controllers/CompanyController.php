@@ -37,41 +37,25 @@ class CompanyController extends Controller
         $userId = $user->id;
         switch ($tipo) {
             case "adm":
-                $empresas = Company::select('companies.id', 'companies.name', 'companies.rfc', 'companies.status', 'company_details.tones_incluide')
+                $empresas = Company::select('companies.id', 'companies.name','companies.rfc', 'companies.status', 'company_details.tones_incluide')
                 ->join('company_details', 'company_details.company_id', '=', 'companies.id') 
                 ->get();
-                return ApiResponse::success(
-                    'Datos obtenidos', 200, $empresas
-                );
+                return ApiResponse::success('Datos obtenidos', 200, $empresas);
     
             case "col": 
-                $empresas = Company::select('companies.id', 'companies.name')
+                $empresas = Company::select('companies.id', 'companies.name','companies.rfc', 'companies.status', 'company_details.tones_incluide')
                     ->join('collaborator_company', 'collaborator_company.company_id', '=', 'companies.id')
                     ->where('collaborator_company.collaborator_id', '=', $userId)
                     ->get();
     
-                return ApiResponse::success(
-                    'Datos obtenidos',  200, [
-                        'type' => $tipo,
-                        'id' => $userId,
-                        'companies' => $empresas
-                    ]
-                );
+                return ApiResponse::success('Datos obtenidos', 200, $empresas);
     
-            default: 
-                $empresas = Company::select('companies.id', 'companies.name')
-                    ->where('id_usr_create', '=', $userId)
+            default:
+                $empresas = Company::select('companies.id', 'companies.name','companies.rfc', 'companies.status', 'company_details.tones_incluide')
+                    ->join('company_details', 'company_details.company_id', '=', 'companies.id')
+                    ->where('companies.id_usr_create', '=', $userId)
                     ->get();
-               $empresas = Company::select('id', 'name', 'rfc')->with(['companyDetail:company_id,tones_incluide'])->where('id_usr_create', $userId)->get();  
-                return ApiResponse::success(
-                    'Datos obtenidos',
-                    200,      
-                    [
-                        'type' => $tipo,
-                        'id' => $userId,
-                        'companies' => $empresas
-                    ]
-                );
+                return ApiResponse::success('Datos obtenidos', 200, $empresas);
         }
     }
 
@@ -125,6 +109,10 @@ class CompanyController extends Controller
             $detalleEmpresa->save();
 
             DB::commit();
+            $empresa = Company::select('companies.id', 'companies.name','companies.rfc', 'companies.status', 'company_details.tones_incluide')
+                ->join('company_details', 'company_details.company_id', '=', 'companies.id')
+                ->where('companies.id', '=', $idEmpresa)
+                ->get();
             return ApiResponse::success('Empresa creada correctamente', 201, $empresa);
         } catch (ValidationException $e) {
             DB::rollBack();

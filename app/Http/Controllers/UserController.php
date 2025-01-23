@@ -103,7 +103,7 @@ class UserController extends Controller
         }
         
         if ($user instanceof User) {
-            User::where('id', $user->id)->update(['ultima_conexion'=> now()]);
+            User::where('id', $user->id)->update(['email_verified_at'=> now()]);
         }
 
         return ApiResponse::success('Correo verificado con éxito.', 200, [
