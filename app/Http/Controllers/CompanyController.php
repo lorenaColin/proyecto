@@ -84,12 +84,18 @@ class CompanyController extends Controller
 
             // Crear los directorios principales
             foreach ($directorios as $directorio) {
-                Storage::disk('public')->makeDirectory($directorioRaiz . '/' . $directorio);
+                $rutaDirectorio = $directorioRaiz . '/' . $directorio;
+                Storage::disk('public')->makeDirectory($rutaDirectorio);
+
+                chmod(public_path('storage/' . $rutaDirectorio), 0777);
             }
 
             $comprobantes = ['ingreso', 'egreso', 'traslado' ,'pago', 'nomina']; 
             foreach ($comprobantes as $comprobante) {
-                Storage::disk('public')->makeDirectory($directorioRaiz . '/comprobantes/' . $comprobante);
+                $rutaComprobante = $directorioRaiz . '/comprobantes/' . $comprobante;
+                Storage::disk('public')->makeDirectory($rutaComprobante);
+
+                chmod(public_path('storage/' . $rutaComprobante), 0777);
             }
     
             $timbresRegalo = 0;

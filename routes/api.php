@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\CompanyDetailController;
 use App\Http\Controllers\SAT\UtilController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
@@ -21,7 +22,7 @@ Route::get('resendcode', [UserController::class, 'resendcode']);
 // Route::middleware('auth:api')->group(function () {
 //company
 Route::apiResource('companies', CompanyController::class);
-Route::post('/createUpdateCompany', [CustomerController::class, 'createUpdateCompany'])->name('createUpdateCompany');
+Route::post('companies/loadSeals', [CompanyDetailController::class, 'loadSeals']);
 // clientes
 Route::apiResource('customers', CustomerController::class);
 Route::post('customerbyuser', [CustomerController::class, 'customerbyuser']);
