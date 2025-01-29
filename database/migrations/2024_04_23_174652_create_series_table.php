@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,14 +12,14 @@ return new class extends Migration
     {
         Schema::create('series', function (Blueprint $table) {
             $table->id();
-            $table->string('serie',length: 25);
-            $table->integer('folio' );
-            $table->string('tipoComprobante',40);
+            $table->string('serie', length: 25);
+            $table->integer('folio');
+            $table->string('tipoComprobante', 40);
             $table->foreignUuid('uuid_company')
-            ->references('id')
-            ->on('companies')
-            ->onDelete('cascade')
-            ->onUpdate('cascade');
+                ->references('id')
+                ->on('companies')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
             $table->boolean('status');
 
 

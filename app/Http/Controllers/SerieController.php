@@ -30,7 +30,8 @@ class SerieController extends Controller
 
     /**
      * Display the specified resource.
-     */public function show($id)
+     */
+    public function show($id)
 {
     $serie = Serie::find($id);
 
