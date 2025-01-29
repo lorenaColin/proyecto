@@ -12,6 +12,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SerieController;
 
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\ubicationController;
+
 // inicio de sesion
 Route::post('login', [UserController::class, 'login']);  
 Route::apiResource('users', UserController::class);
@@ -49,5 +51,11 @@ Route::apiResource('serie', SerieController::class);
 // productos
 Route::apiResource('products', ProductController::class);
 
-
+// invoice
 Route::apiResource('invoices', InvoiceController::class);
+//carta porte ubicaciones
+Route::apiResource('ubicacion', ubicationController::class);
+Route::get(uri: 'paises', action: [ubicationController::class, 'catPais']);
+Route::get('direccion/{codigoPostal}', [ubicationController::class, 'buscarDireccion']);
+
+
