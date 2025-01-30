@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AutotransportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,7 +16,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ubicationController;
 
 // inicio de sesion
-Route::post('login', [UserController::class, 'login']);  
+Route::post('login', [UserController::class, 'login']);
 Route::apiResource('users', UserController::class);
 Route::post('verifycode', [UserController::class, 'verifyCode']);
 Route::get('resendcode', [UserController::class, 'resendcode']);
@@ -42,7 +43,7 @@ Route::get('searchCodePostal', [UtilController::class, 'searchCodePostal']);
 // });
 
 
- // token 
+// token 
 Route::post('refresh', [UserController::class, 'refresh']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:api');
 
@@ -58,4 +59,6 @@ Route::apiResource('ubicacion', ubicationController::class);
 Route::get(uri: 'paises', action: [ubicationController::class, 'catPais']);
 Route::get('direccion/{codigoPostal}', [ubicationController::class, 'buscarDireccion']);
 
-
+Route::apiResource('autotransports', AutotransportController::class);
+Route::get('/config', [AutotransportController::class, 'getConfigAutotransporte']);
+Route::get('/permis', [AutotransportController::class, 'getPermisos']);

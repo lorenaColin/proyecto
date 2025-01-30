@@ -61,4 +61,8 @@ class Company extends Model
         return $this->hasMany('App\Models\Payment', 'company_id');
     }
     
+    public function autotransports()
+    {
+        return $this->hasMany('App\Models\Autotransport', 'company_id');
+    }
 }

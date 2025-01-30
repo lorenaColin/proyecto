@@ -13,21 +13,20 @@ return new class extends Migration
     {
         Schema::create('autotransports', function (Blueprint $table) {
             $table->id();
-            $table->string('c_vehicle', 11);
-            $table->integer('anio');
-            $table->string('p_vehicle', 7);
-            $table->decimal('w_gross', total: 12, places: 2); // Revisar documentacion para la cantidad total
+            $table->string('configVehicular', 11);
+            $table->decimal('pesoBrutoVehicular', total: 12, places: 2); // Revisar documentacion para la cantidad total
+            $table->string('placaVM', 7);
+            $table->integer('anioModeloVM');
+            $table->string('permSCT', 6);
+            $table->string('numPermisoSCT', 50);
+            $table->string('aseguraRespCivil', 50);
+            $table->string('polizaRespCivil', 30);
 
-            $table->foreignUuid('customer_id')
+            $table->foreignUuid('company_id')
                 ->references('id')
-                ->on('customers')
+                ->on('companies')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
-
-            $table->string('asegure', 11);
-            $table->string('polize', 11);
-
-
             $table->timestamps();
         });
     }
