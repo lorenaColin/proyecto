@@ -65,4 +65,9 @@ class Company extends Model
     {
         return $this->hasMany('App\Models\Autotransport', 'company_id');
     }
+
+    public function insurances()
+    {
+        return $this->hasMany('App\Models\Insurance', 'company_id');
+    }
 }

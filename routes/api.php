@@ -9,6 +9,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyDetailController;
 use App\Http\Controllers\SAT\UtilController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SerieController;
 
@@ -62,3 +63,5 @@ Route::get('direccion/{codigoPostal}', [ubicationController::class, 'buscarDirec
 Route::apiResource('autotransports', AutotransportController::class);
 Route::get('/config', [AutotransportController::class, 'getConfigAutotransporte']);
 Route::get('/permis', [AutotransportController::class, 'getPermisos']);
+
+Route::apiResource('insurances', InsuranceController::class);

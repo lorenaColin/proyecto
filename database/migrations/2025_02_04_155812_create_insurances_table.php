@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('safes', function (Blueprint $table) {
+        Schema::create('insurances', function (Blueprint $table) {
             $table->id();
             $table->string('type');
             $table->string('asegure', 50);
             $table->string('polize', 30);
 
-            $table->foreignUuid('customer_id')
+            $table->foreignUuid('company_id')
                 ->references('id')
-                ->on('customers')
+                ->on('companies')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
 
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('safes');
+        Schema::dropIfExists('insurances');
     }
 };
