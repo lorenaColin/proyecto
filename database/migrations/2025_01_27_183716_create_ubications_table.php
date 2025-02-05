@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('ubications', function (Blueprint $table) {
             $table->id();
             $table->string('rfc', 13);
-            $table->string('idUbicacion', 8)->nullable();
+            $table->string('idUbicacion')->nullable();
             $table->string('NombreRemitenteDestinatario', 254)->nullable();
             $table->string('numRegIdTrib', 40)->nullable();
             $table->string('residenciaFiscal')->nullable();

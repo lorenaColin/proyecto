@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\mercanciasController;
+use App\Http\Controllers\remolquesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -57,5 +59,15 @@ Route::apiResource('invoices', InvoiceController::class);
 Route::apiResource('ubicacion', ubicationController::class);
 Route::get(uri: 'paises', action: [ubicationController::class, 'catPais']);
 Route::get('direccion/{codigoPostal}', [ubicationController::class, 'buscarDireccion']);
+//remolques
+Route::apiResource('remolques', remolquesController::class);
+Route::get(uri: 'catRemolques', action: [remolquesController::class, 'catRemolques']);
+//mercancias 
+Route::apiResource('mercancia', mercanciasController::class);
+
+
+
+
+
 
 

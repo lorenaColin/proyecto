@@ -24,7 +24,7 @@ class ubicationRequest extends FormRequest
     {
         return [
             'rfc' => ['required', 'string', 'min:12', 'max:13'],
-            'idUbicacion' => ['nullable', 'string', 'max:8'],
+            'idUbicacion' => ['nullable', 'string', 'max:9'],
             'NombreRemitenteDestinatario' => ['nullable', 'string', 'max:254'],
             'numRegIdTrib' => ['nullable', 'string', 'min:6', 'max:40'],
             'residenciaFiscal' => ['nullable', 'string'],
@@ -47,7 +47,7 @@ class ubicationRequest extends FormRequest
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
-            'error' => false,
+            'error' => true,
             'message' => 'Validation errors',
             'data' => $validator->errors()
         ]));
