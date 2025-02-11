@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
 use App\Http\Requests\SerieRequest;
+use App\Models\Models\CatalogoSat\Cat_claveUnidad;
+use App\Models\Models\CatalogoSat\ClaveProdServ;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Http\Responses\ApiResponse;
@@ -90,5 +92,15 @@ class ProductController extends Controller
         }
         $product->delete();
         return ApiResponse::success('Producto eliminado correctamente', 200);
+    }
+    public function catProductos()
+    {
+        $producto = ClaveProdServ::all();
+        return ApiResponse::success('Listado de productos ', 200, $producto); 
+    }
+    public function catUnidad()
+    {
+        $unidad = Cat_claveUnidad::all();
+        return ApiResponse::success('Listado de unidades ', 200, $unidad); 
     }
 }

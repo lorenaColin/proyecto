@@ -52,6 +52,8 @@ Route::post('logout', [UserController::class, 'logout'])->middleware('auth:api')
 Route::apiResource('serie', SerieController::class);
 // productos
 Route::apiResource('products', ProductController::class);
+Route::get('catProductos', [ProductController::class, 'catProductos']);
+Route::get('catUnidad', [ProductController::class, 'catUnidad']);
 
 // invoice
 Route::apiResource('invoices', InvoiceController::class);
@@ -64,6 +66,12 @@ Route::apiResource('remolques', remolquesController::class);
 Route::get(uri: 'catRemolques', action: [remolquesController::class, 'catRemolques']);
 //mercancias 
 Route::apiResource('mercancia', mercanciasController::class);
+Route::get('prodservcp', [mercanciasController::class, 'prodservcp']);
+Route::get('catClaveUnidad', [mercanciasController::class, 'catClaveUnidad']);
+Route::get('catMatpeligroso', [mercanciasController::class, 'catMatpeligroso']);
+Route::get('catEmbalaje', [mercanciasController::class, 'catEmbalaje']);
+
+
 
 
 

@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\mercanciasRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\mercancia;
+use App\Models\Models\CatalogoSat\Cat_claveUnidad;
+use App\Models\Models\CatalogoSat\cat_embalaje;
+use App\Models\Models\CatalogoSat\cat_materialpeligroso;
+use App\Models\Models\CatalogoSat\Cat_prodServCP;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -78,4 +82,26 @@ class mercanciasController extends Controller
         $mercancia->delete();
         return ApiResponse::success('mercancia eliminado correctamente', 200);
     }
+    public function prodservcp()
+    {
+        $productos = Cat_prodServCP::all();
+        return ApiResponse::success('Listado de mercancia', 200, $productos); 
+    }
+    public function catClaveUnidad()
+    {
+        $unidad = Cat_claveUnidad::all();
+        return ApiResponse::success('Listado de clave ', 200, $unidad); 
+    }
+    public function catMatpeligroso()
+    {
+        $materialP = cat_materialpeligroso::all();
+        return ApiResponse::success('Listado de clave ', 200, $materialP); 
+    }
+    public function catEmbalaje()
+    {
+        $embalaje = cat_embalaje::all();
+        return ApiResponse::success('Listado de Embalajes ', 200, $embalaje); 
+    }
+    
+    
 }
