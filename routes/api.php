@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\figurasController;
 use App\Http\Controllers\mercanciasController;
 use App\Http\Controllers\remolquesController;
 use Illuminate\Http\Request;
@@ -71,7 +72,10 @@ Route::get('catClaveUnidad', [mercanciasController::class, 'catClaveUnidad']);
 Route::get('catMatpeligroso', [mercanciasController::class, 'catMatpeligroso']);
 Route::get('catEmbalaje', [mercanciasController::class, 'catEmbalaje']);
 
-
+//figuras
+Route::apiResource('figuras', figurasController::class);
+Route::get(uri: 'paises', action: [figurasController::class, 'catPais']);
+Route::get('direccion/{codigoPostal}', [figurasController::class, 'buscarDireccion']);
 
 
 
