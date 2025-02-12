@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ubications', function (Blueprint $table) {
+        Schema::create('figuras', function (Blueprint $table) {
             $table->id();
-            $table->string('rfc', 13);
-            $table->string('idUbicacion')->nullable();
-            $table->string('NombreRemitenteDestinatario', 254)->nullable();
-            $table->string('numRegIdTrib', 40)->nullable();
-            $table->string('residenciaFiscal')->nullable();
-            $table->string('tipoUbicacion');
+            $table->string('tipoFigura');
+            $table->string('rfcFigura');
+            $table->string('numLicencia')->nullable();
+            $table->string('nombreFigura');
+            $table->string('numRegIdTribFigura')->nullable();
+            $table->string('residenciaFiscalFigura')->nullable();
             $table->string('domicilio')->nullable();
             $table->string('pais')->nullable();
             $table->string('codigoPostal')->nullable();
@@ -35,7 +35,6 @@ return new class extends Migration
             ->on('companies')
             ->onDelete('cascade')
             ->onUpdate('cascade');
-       
             $table->timestamps();
         });
     }
@@ -45,6 +44,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ubications');
+        Schema::dropIfExists('figuras');
     }
 };

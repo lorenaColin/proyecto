@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
-class ubicationRequest extends FormRequest
+class figurasRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,12 +23,12 @@ class ubicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'rfc' => ['required', 'string', 'min:12', 'max:13'],
-            'idUbicacion' => ['nullable', 'string', 'max:9'],
-            'NombreRemitenteDestinatario' => ['nullable', 'string', 'max:254'],
-            'numRegIdTrib' => ['nullable', 'string', 'min:6', 'max:40'],
-            'residenciaFiscal' => ['nullable', 'string'],
-            'tipoUbicacion' => ['required', 'string'],
+            'rfcFigura' => ['required', 'string',],
+            'tipoFigura' => ['required', 'string',],
+            'numLicencia' => ['nullable', 'string', 'min:6', 'max:16'],
+            'nombreFigura' => ['nullable', 'string', 'max:254'],
+            'numRegIdTribFigura' => ['nullable', 'string', 'min:6', 'max:40'],
+            'residenciaFiscalFigura' => ['nullable', 'string'],
             'domicilio' => ['nullable', 'string'],
             'pais' => ['nullable', 'string'],
             'codigoPostal' => ['nullable', 'string', 'min:1', 'max:12'],
@@ -42,7 +42,7 @@ class ubicationRequest extends FormRequest
             'referencia' => ['nullable', 'string'],
             'uuid_company' => ['required', 'uuid', 'exists:companies,id'],
         ];
-        
+
     }
     public function failedValidation(Validator $validator)
     {
@@ -55,20 +55,24 @@ class ubicationRequest extends FormRequest
     public function messages()
     {
         return [
-            'rfc.required' => 'El RFC es obligatorio.',
-            'rfc.string' => 'El RFC debe ser una cadena de caracteres.',
-            'rfc.min' => 'El RFC debe tener al menos 12 caracteres.',
-            'rfc.max' => 'El RFC no debe tener más de 13 caracteres.',
-            'idUbicacion.string' => 'El ID de la ubicación debe ser una cadena de caracteres.',
-            'idUbicacion.max' => 'El ID de la ubicación no debe tener más de 8 caracteres.',
-            'NombreRemitenteDestinatario.string' => 'El nombre del remitente o destinatario debe ser una cadena de caracteres.',
-            'NombreRemitenteDestinatario.max' => 'El nombre del remitente o destinatario no debe tener más de 254 caracteres.',
-            'numRegIdTrib.string' => 'El número de registro del contribuyente debe ser una cadena de caracteres.',
-            'numRegIdTrib.min' => 'El número de registro del contribuyente debe tener al menos 6 caracteres.',
-            'numRegIdTrib.max' => 'El número de registro del contribuyente no debe tener más de 40 caracteres.',
-            'residenciaFiscal.string' => 'La residencia fiscal debe ser una cadena de caracteres.',
-            'tipoUbicacion.required' => 'El tipo de ubicación es obligatorio.',
-            'tipoUbicacion.string' => 'El tipo de ubicación debe ser una cadena de caracteres.',
+            'rfcFigura.required' => 'El RFC de la figura es obligatorio.',
+            'rfcFigura.string' => 'El RFC de la figura debe ser una cadena de caracteres.',
+
+            'tipoFigura.required' => 'El tipo de figura es obligatorio.',
+            'tipoFigura.string' => 'El tipo de figura debe ser una cadena de caracteres.',
+
+            'numLicencia.string' => 'El número de licencia debe ser una cadena de caracteres.',
+            'numLicencia.min' => 'El número de licencia debe tener al menos 6 caracteres.',
+            'numLicencia.max' => 'El número de licencia no debe tener más de 16 caracteres.',
+
+            'nombreFigura.string' => 'El nombre de la figura debe ser una cadena de caracteres.',
+            'nombreFigura.max' => 'El nombre de la figura no debe tener más de 254 caracteres.',
+
+            'numRegIdTribFigura.string' => 'El número de registro tributario debe ser una cadena de caracteres.',
+            'numRegIdTribFigura.min' => 'El número de registro tributario debe tener al menos 6 caracteres.',
+            'numRegIdTribFigura.max' => 'El número de registro tributario no debe tener más de 40 caracteres.',
+
+            'residenciaFiscalFigura.string' => 'La residencia fiscal debe ser una cadena de caracteres.',
             'domicilio.string' => 'El domicilio debe ser una cadena de caracteres.',
             'pais.string' => 'El país debe ser una cadena de caracteres.',
             'codigoPostal.string' => 'El código postal debe ser una cadena de caracteres.',
@@ -84,11 +88,10 @@ class ubicationRequest extends FormRequest
             'numeroExterior.string' => 'El número exterior debe ser una cadena de caracteres.',
             'numeroInterior.string' => 'El número interior debe ser una cadena de caracteres.',
             'referencia.string' => 'La referencia debe ser una cadena de caracteres.',
-            
+
             'uuid_company.required' => 'El UUID de la empresa es requerido.',
             'uuid_company.uuid' => 'El UUID de la empresa debe ser válido.',
             'uuid_company.exists' => 'La empresa especificada no existe en la base de datos.',
         ];
     }
-    
 }

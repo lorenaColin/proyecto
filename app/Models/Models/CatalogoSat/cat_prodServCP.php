@@ -5,11 +5,11 @@ namespace App\Models\Models\CatalogoSat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ClaveProdServ extends Model
+class Cat_prodServCP extends Model
 {
     use HasFactory;
 
-    protected $table = 'cat_calveprodservcfdi';
+    protected $table = 'c_claveprodservcp';
 
     public $timestamps = false;
 

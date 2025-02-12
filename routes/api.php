@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\AutotransportController;
+use App\Http\Controllers\figurasController;
+use App\Http\Controllers\mercanciasController;
+use App\Http\Controllers\remolquesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -52,6 +55,8 @@ Route::post('logout', [UserController::class, 'logout'])->middleware('auth:api')
 Route::apiResource('serie', SerieController::class);
 // productos
 Route::apiResource('products', ProductController::class);
+Route::get('catProductos', [ProductController::class, 'catProductos']);
+Route::get('catUnidad', [ProductController::class, 'catUnidad']);
 
 // invoice
 Route::apiResource('invoices', InvoiceController::class);
@@ -59,6 +64,25 @@ Route::apiResource('invoices', InvoiceController::class);
 Route::apiResource('ubicacion', ubicationController::class);
 Route::get(uri: 'paises', action: [ubicationController::class, 'catPais']);
 Route::get('direccion/{codigoPostal}', [ubicationController::class, 'buscarDireccion']);
+//remolques
+Route::apiResource('remolques', remolquesController::class);
+Route::get(uri: 'catRemolques', action: [remolquesController::class, 'catRemolques']);
+//mercancias 
+Route::apiResource('mercancia', mercanciasController::class);
+Route::get('prodservcp', [mercanciasController::class, 'prodservcp']);
+Route::get('catClaveUnidad', [mercanciasController::class, 'catClaveUnidad']);
+Route::get('catMatpeligroso', [mercanciasController::class, 'catMatpeligroso']);
+Route::get('catEmbalaje', [mercanciasController::class, 'catEmbalaje']);
+
+//figuras
+Route::apiResource('figuras', figurasController::class);
+Route::get(uri: 'paises', action: [figurasController::class, 'catPais']);
+Route::get('direccion/{codigoPostal}', [figurasController::class, 'buscarDireccion']);
+
+
+
+
+
 
 Route::apiResource('autotransports', AutotransportController::class);
 Route::get('/config', [AutotransportController::class, 'getConfigAutotransporte']);
