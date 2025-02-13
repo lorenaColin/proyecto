@@ -52,7 +52,9 @@ class AutotransportRequest extends FormRequest
         return [
             'configVehicular.required' => 'La Clave Vehicular es obligatoria',
             'pesoBrutoVehicular.required' => 'El Peso Bruto es obligatorio',
+            'pesoBrutoVehicular.decimal' => 'El Peso bruto debe contener 2 decimales',
             'placaVM.required' => 'La Placa es obligatoria',
+            'placaVM.unique' => 'La Placa ya existe',
             'anioModeloVM.required' => 'El Año del Modelo es obligatorio',
             'permSCT.required' => 'El Permiso SCT es obligatorio',
             'numPermisoSCT.required' => 'El Número del Permiso es obligatorio',
