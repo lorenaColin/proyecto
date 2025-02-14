@@ -79,11 +79,6 @@ Route::apiResource('figuras', figurasController::class);
 Route::get(uri: 'paises', action: [figurasController::class, 'catPais']);
 Route::get('direccion/{codigoPostal}', [figurasController::class, 'buscarDireccion']);
 
-
-
-
-
-
 Route::apiResource('autotransports', AutotransportController::class);
 Route::get('/config', [AutotransportController::class, 'getConfigAutotransporte']);
 Route::get('/permis', [AutotransportController::class, 'getPermisos']);
