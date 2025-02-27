@@ -23,7 +23,7 @@ class figurasRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'rfcFigura' => ['required', 'string',],
+            'rfcFigura' => ['nullable', 'string',],
             'tipoFigura' => ['required', 'string',],
             'numLicencia' => ['nullable', 'string', 'min:6', 'max:16'],
             'nombreFigura' => ['nullable', 'string', 'max:254'],
@@ -55,7 +55,7 @@ class figurasRequest extends FormRequest
     public function messages()
     {
         return [
-            'rfcFigura.required' => 'El RFC de la figura es obligatorio.',
+         
             'rfcFigura.string' => 'El RFC de la figura debe ser una cadena de caracteres.',
 
             'tipoFigura.required' => 'El tipo de figura es obligatorio.',

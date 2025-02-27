@@ -61,10 +61,16 @@ class figurasController extends Controller
         $figuras->delete();
         return ApiResponse::success('figuras eliminada exitosamente', 200);
     }
+    // public function catPais()
+    // {
+    //     $descripciones = Cat_pais::pluck('descripcion'); 
+    //     return response()->json($descripciones);
+    // }
+
     public function catPais()
     {
-        $descripciones = Cat_pais::pluck('descripcion'); 
-        return response()->json($descripciones);
+        $pais = Cat_pais::all();
+        return ApiResponse::success('Listado de unidades ', 200, $pais); 
     }
     public function buscarDireccion($codigoPostal)
     {

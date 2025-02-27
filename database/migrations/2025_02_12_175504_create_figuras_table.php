@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('figuras', function (Blueprint $table) {
             $table->id();
             $table->string('tipoFigura');
-            $table->string('rfcFigura');
+            $table->string('rfcFigura')->nullable();
             $table->string('numLicencia')->nullable();
             $table->string('nombreFigura');
             $table->string('numRegIdTribFigura')->nullable();
