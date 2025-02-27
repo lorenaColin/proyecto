@@ -87,8 +87,8 @@ class ubicationController extends Controller
     }
     public function catPais()
     {
-        $descripciones = Cat_pais::pluck('descripcion'); 
-        return response()->json($descripciones);
+        $pais = Cat_pais::all();
+        return ApiResponse::success('Listado de unidades ', 200, $pais); 
     }
 
     public function buscarDireccion($codigoPostal)
@@ -121,6 +121,8 @@ class ubicationController extends Controller
         return response()->json($datosDireccion);
     }
   
+    
+
     
 
     
