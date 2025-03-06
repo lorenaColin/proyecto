@@ -19,6 +19,7 @@ class Autotransport extends Model
         'numPermisoSCT',
         'aseguraRespCivil',
         'polizaRespCivil',
+        'tipoRemolque',
         'company_id'
     ];
 

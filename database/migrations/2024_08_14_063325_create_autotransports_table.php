@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('numPermisoSCT', 50);
             $table->string('aseguraRespCivil', 50);
             $table->string('polizaRespCivil', 30);
+            $table->string('tipoRemolque');
 
             $table->foreignUuid('company_id')
                 ->references('id')
