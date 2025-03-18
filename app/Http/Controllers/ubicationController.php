@@ -27,6 +27,16 @@ class ubicationController extends Controller
         return ApiResponse::success('Listado de ubicaciones', 200, $ubicacion); 
     }
 
+    public function getUbicacionesPorTipo($tipoUbicacion)
+    {
+        $ubicaciones = Ubication::where('tipoUbicacion', $tipoUbicacion)->get();
+        if ($ubicaciones->isEmpty()) {
+            return ApiResponse::success('No se encontraron ubicaciones para el tipo: ' . $tipoUbicacion, 200, []);
+        }
+        return ApiResponse::success('Listado de ubicaciones de tipo: ' . $tipoUbicacion, 200, $ubicaciones);
+    }
+  
+
    
  
 
