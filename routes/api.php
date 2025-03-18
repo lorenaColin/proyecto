@@ -64,6 +64,9 @@ Route::apiResource('invoices', InvoiceController::class);
 Route::apiResource('ubicacion', ubicationController::class);
 Route::get(uri: 'paises', action: [ubicationController::class, 'catPais']);
 Route::get('direccion/{codigoPostal}', [ubicationController::class, 'buscarDireccion']);
+Route::get('ubicaciones/{tipoUbicacion}', [ubicationController::class, 'getUbicacionesPorTipo']);
+
+
 //remolques
 Route::apiResource('remolques', remolquesController::class);
 Route::get(uri: 'catRemolques', action: [remolquesController::class, 'catRemolques']);
