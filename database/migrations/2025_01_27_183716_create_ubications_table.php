@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('numRegIdTrib', 40)->nullable();
             $table->string('residenciaFiscal')->nullable();
             $table->string('tipoUbicacion');
-            $table->string('domicilio')->nullable();
+            $table->boolean('domicilio')->nullable();
             $table->string('pais')->nullable();
             $table->string('codigoPostal')->nullable();
             $table->string('estado',30)->nullable();

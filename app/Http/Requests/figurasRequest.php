@@ -29,7 +29,7 @@ class figurasRequest extends FormRequest
             'nombreFigura' => ['nullable', 'string', 'max:254'],
             'numRegIdTribFigura' => ['nullable', 'string', 'min:6', 'max:40'],
             'residenciaFiscalFigura' => ['nullable', 'string'],
-            'domicilio' => ['nullable', 'string'],
+            'domicilio' => [ 'boolean'],
             'pais' => ['nullable', 'string'],
             'codigoPostal' => ['nullable', 'string', 'min:1', 'max:12'],
             'estado' => ['nullable', 'string', 'min:1', 'max:30'],
@@ -73,7 +73,7 @@ class figurasRequest extends FormRequest
             'numRegIdTribFigura.max' => 'El número de registro tributario no debe tener más de 40 caracteres.',
 
             'residenciaFiscalFigura.string' => 'La residencia fiscal debe ser una cadena de caracteres.',
-            'domicilio.string' => 'El domicilio debe ser una cadena de caracteres.',
+            'domicilio.string' => 'El domicilio debe ser un boleano .',
             'pais.string' => 'El país debe ser una cadena de caracteres.',
             'codigoPostal.string' => 'El código postal debe ser una cadena de caracteres.',
             'codigoPostal.min' => 'El código postal debe tener al menos 1 carácter.',

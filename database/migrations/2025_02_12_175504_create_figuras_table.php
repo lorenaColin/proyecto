@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('nombreFigura');
             $table->string('numRegIdTribFigura')->nullable();
             $table->string('residenciaFiscalFigura')->nullable();
-            $table->string('domicilio')->nullable();
+            $table->boolean('domicilio')->nullable();
             $table->string('pais')->nullable();
             $table->string('codigoPostal')->nullable();
             $table->string('estado',30)->nullable();
