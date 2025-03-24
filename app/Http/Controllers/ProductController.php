@@ -93,14 +93,39 @@ class ProductController extends Controller
         $product->delete();
         return ApiResponse::success('Producto eliminado correctamente', 200);
     }
-    public function catProductos()
-    {
-        $producto = ClaveProdServ::all();
-        return ApiResponse::success('Listado de productos ', 200, $producto); 
-    }
-    public function catUnidad()
-    {
-        $unidad = Cat_claveUnidad::all();
-        return ApiResponse::success('Listado de unidades ', 200, $unidad); 
-    }
+    // public function catProductos()
+    // {
+    //     $producto = ClaveProdServ::all();
+    //     return ApiResponse::success('Listado de productos ', 200, $producto); 
+    // }
+    public function catProductos(Request $request)
+{
+    // Obtener el término de búsqueda de la solicitud
+    $termino = $request->input('termino', '');  // Si no se pasa un término, por defecto es una cadena vacía
+
+    // Filtrar los productos que coincidan con el término
+    $productos = ClaveProdServ::where('c_ClaveProdServ', 'like', "%$termino%")
+                             ->orWhere('descripcion', 'like', "%$termino%")
+                             ->get();
+
+    return ApiResponse::success('Listado de productos', 200, $productos);
+}
+
+    // public function catUnidad()
+    // {
+    //     $unidad = Cat_claveUnidad::all();
+    //     return ApiResponse::success('Listado de unidades ', 200, $unidad); 
+    // }
+    public function catUnidad(Request $request)
+{
+    $termino = $request->input('termino', '');
+
+    // Filtrar las unidades según el término de búsqueda
+    $unidades = Cat_claveUnidad::where('c_claveunidad', 'like', "%$termino%")
+                           ->orWhere('nombre', 'like', "%$termino%")
+                           ->get();
+
+    return ApiResponse::success('Listado de unidades', 200, $unidades);
+}
+
 }
