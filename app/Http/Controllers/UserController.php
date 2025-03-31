@@ -23,7 +23,8 @@ class UserController extends Controller
     public function index()
     { {
             $users = User::all();
-            return ApiResponse::success('Listado de usuarios', 200, $users);
+            return ApiResponse::success('Listado
+             de usuarios', 200, $users);
         }
     }
 
@@ -36,7 +37,8 @@ class UserController extends Controller
         $user = User::create($validatedData);
         $token = JWTAuth::fromUser($user);
         $this->sendVerificationEmail($user);
-        return ApiResponse::success('Registro exitoso. Se ha enviado un código de verificación a tu correo electrónico.', 200, [
+        return ApiResponse::success('Registro exitoso. Se ha enviado un código
+         de verificación a tu correo electrónico.', 200, [
             'user' => $user,
             'token' => $token
         ]);

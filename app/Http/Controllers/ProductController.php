@@ -100,10 +100,8 @@ class ProductController extends Controller
     // }
     public function catProductos(Request $request)
 {
-    // Obtener el término de búsqueda de la solicitud
-    $termino = $request->input('termino', '');  // Si no se pasa un término, por defecto es una cadena vacía
+    $termino = $request->input('termino', ''); 
 
-    // Filtrar los productos que coincidan con el término
     $productos = ClaveProdServ::where('c_ClaveProdServ', 'like', "%$termino%")
                              ->orWhere('descripcion', 'like', "%$termino%")
                              ->get();
@@ -111,16 +109,10 @@ class ProductController extends Controller
     return ApiResponse::success('Listado de productos', 200, $productos);
 }
 
-    // public function catUnidad()
-    // {
-    //     $unidad = Cat_claveUnidad::all();
-    //     return ApiResponse::success('Listado de unidades ', 200, $unidad); 
-    // }
     public function catUnidad(Request $request)
 {
     $termino = $request->input('termino', '');
 
-    // Filtrar las unidades según el término de búsqueda
     $unidades = Cat_claveUnidad::where('c_claveunidad', 'like', "%$termino%")
                            ->orWhere('nombre', 'like', "%$termino%")
                            ->get();

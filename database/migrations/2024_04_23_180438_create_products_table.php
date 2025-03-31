@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('unit_price', total: 30, places: 6);           
             $table->decimal('quantity', total: 30, places: 6);
             $table->boolean('status');
-           $table->integer('identifier_number');
+           $table->string('identifier_number');
            $table->string('internal_key',  20); 
            $table->string('description',length: 1000); 
            $table->foreignUuid('uuid_company')

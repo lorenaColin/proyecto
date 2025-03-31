@@ -35,7 +35,7 @@ class ProductRequest extends FormRequest
         'unit_price' => ['required', 'numeric', 'min:0'],
         'quantity' => ['required', 'numeric', 'min:0'],
         'status' => ['required', 'boolean'],
-        'identifier_number' => ['required', 'integer'],
+        'identifier_number' => ['required', 'string','max:100'],
     //    'internal_key' => ['required', 'string',],
     //    Rule::unique('products', 'internal_key')->ignore($this->route('product')),
         'internal_key' => [
@@ -83,7 +83,7 @@ public function messages()
 
         
         'identifier_number.required' => 'El número de identificación es requerido.',
-        'identifier_number.integer' => 'El 120 de identificación debe ser un valor entero.',
+        'identifier_number.string' => 'El numero  de identificación debe ser un string.',
         
         'internal_key.required' => 'La clave interna es requerida.',
         'internal_key.string' => 'La clave interna debe ser una cadena.',

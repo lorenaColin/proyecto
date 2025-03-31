@@ -30,7 +30,7 @@ class mercanciasController extends Controller
     {
         // Los datos ya están validados en mercanciaRequest
         $mercancia= mercancia::create($request->validated());
-        return ApiResponse::success('mercancia creado correctamente', 201, $mercancia);
+        return ApiResponse::success('Mercancia creado correctamente', 201, $mercancia);
     }
 
     /**
@@ -46,7 +46,7 @@ class mercanciasController extends Controller
             $mercancia = mercancia::findOrFail($id);
             return ApiResponse::success('mercancia obtenida exitosamente', 200, $mercancia);
         } catch (ModelNotFoundException $e) {
-            return ApiResponse::error('mercancia no encontrada', 404);
+            return ApiResponse::error('Mercancia no encontrada', 404);
         }
     }
 
@@ -64,7 +64,7 @@ class mercanciasController extends Controller
     
             $mercancia->update($request->validated());
     
-            return ApiResponse::success('mercancia actualizada correctamente', 200, $mercancia);
+            return ApiResponse::success('Mercancia actualizada correctamente', 200, $mercancia);
         } catch (\Exception $e) {
             return ApiResponse::error('Error al actualizar la mercancia', 
             $e instanceof ValidationException ? 422 : 500, $e->getMessage());
@@ -80,22 +80,50 @@ class mercanciasController extends Controller
             return ApiResponse::error('mercancia no encontrado', 404);
         }
         $mercancia->delete();
-        return ApiResponse::success('mercancia eliminado correctamente', 200);
+        return ApiResponse::success('Mercancia eliminado correctamente', 200);
     }
-    public function prodservcp()
+    // public function prodservcp()
+    // {
+    //     $productos = Cat_prodServCP::all();
+    //     return ApiResponse::success('Listado de mercancia', 200, $productos); 
+    // }
+    public function prodservcp(Request $request)
     {
-        $productos = Cat_prodServCP::all();
-        return ApiResponse::success('Listado de mercancia', 200, $productos); 
+        $termino = $request->input('termino', '');
+        $unidades = Cat_prodServCP::where('c_ClaveProdServ', 'like', "%$termino%")
+                               ->orWhere('descripcion', 'like', "%$termino%")
+                               ->orWhere('descripcion2', 'like', "%$termino%")
+                               ->orWhere('material_peligroso', 'like', "%$termino%")
+
+                               ->get();
+    
+        return ApiResponse::success('Listado de mercancia', 200, $unidades);
     }
-    public function catClaveUnidad()
+       
+   
+    public function catClaveUnidad(Request $request)
     {
-        $unidad = Cat_claveUnidad::all();
-        return ApiResponse::success('Listado de clave ', 200, $unidad); 
+        $termino = $request->input('termino', '');
+        $unidades = Cat_claveUnidad::where('c_claveunidad', 'like', "%$termino%")
+                               ->orWhere('nombre', 'like', "%$termino%")
+                              
+
+                               ->get();
+    
+        return ApiResponse::success('Listado de clave', 200, $unidades);
     }
-    public function catMatpeligroso()
+       
+ 
+    public function catMatpeligroso(Request $request)
     {
-        $materialP = cat_materialpeligroso::all();
-        return ApiResponse::success('Listado de clave ', 200, $materialP); 
+        $termino = $request->input('termino', '');
+        $unidades = cat_materialpeligroso::where('clave', 'like', "%$termino%")
+                               ->orWhere('descripcion', 'like', "%$termino%")
+                              
+
+                               ->get();
+    
+        return ApiResponse::success('Listado de material Peligroso', 200, $unidades);
     }
     public function catEmbalaje()
     {

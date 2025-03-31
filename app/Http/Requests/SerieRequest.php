@@ -24,7 +24,8 @@ class SerieRequest extends FormRequest
     {
         return [
             'serie' => ['required', 'string', 'max:25'],
-            'folio' => ['required', 'integer', 'min:5'],
+            'folio' => ['required', 'integer', 'folio' => 'digits_between:1,5',
+],
             'tipoComprobante' => ['required', 'string', 'max:40'],
             'uuid_company' => ['required', 'uuid', 'exists:companies,id'],
             'status' => ['required', 'boolean'],
@@ -47,7 +48,7 @@ class SerieRequest extends FormRequest
 
             'folio.required' => 'El folio es requerido.',
             'folio.string' => 'El folio debe ser una entero.',
-            'folio.max' => 'El folio no puede tener minimo de 5 digitos.',
+            'folio.max' => 'El folio no puede tener maximo de 5 digitos.',
 
             'tipoComprobante.required' => 'El tipo de comprobante es requerido.',
             'tipoComprobante.string' => 'El tipo de comprobante debe ser una cadena.',
