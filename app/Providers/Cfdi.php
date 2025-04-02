@@ -141,15 +141,15 @@ class Cfdi {
 
             
             //Inicia datos requeridos
-            $this->concepto->setAttribute("ClaveProdServ", $valor["name_product"]);
-            $this->concepto->setAttribute("ClaveUnidad", $valor["unit_value"]);
-            $this->concepto->setAttribute("Cantidad", $valor["quantity"]);
-            $this->concepto->setAttribute("Descripcion", $valor["description"]);
-            $this->concepto->setAttribute("ValorUnitario", $valor["unit_price"]);
-            $this->concepto->setAttribute("Importe", $valor["valorUnitario"]);
-            $this->concepto->setAttribute("ObjetoImp", $valor["tax_object"]);
+            $this->concepto->setAttribute("ClaveProdServ", $valor["claveProdServ"]);
+            $this->concepto->setAttribute("ClaveUnidad", $valor["claveUnidad"]);
+            $this->concepto->setAttribute("Cantidad", $valor["cantidad"]);
+            $this->concepto->setAttribute("Descripcion", $valor["descripcion"]);
+            $this->concepto->setAttribute("ValorUnitario", $valor["valorUnitario"]);
+            $this->concepto->setAttribute("Importe", $valor["importe"]);
+            $this->concepto->setAttribute("ObjetoImp", $valor["objetoImp"]);
             //Termina datos requeridos
-            /*
+            
             //Inicia datos condicionales
             if($valor["unidad"] != ""){
                 $this->concepto->setAttribute("Unidad", $valor["unidad"]);
@@ -165,9 +165,9 @@ class Cfdi {
                 $this->concepto->setAttribute("NoIdentificacion", $valor["noIdentificacion"]);
             }
             //Termina datos opcionales
-            */
+            
             //Inicia nodo impuestos translados
-            if($valor["tax_object"] == "02"){
+            if($valor["objetoImp"] == "02"){
                 $this->nodoImpuestos  = $this->xml->createElement("cfdi:Impuestos");
                 $this->concepto->appendChild($this->nodoImpuestos);
 
@@ -207,7 +207,7 @@ class Cfdi {
                         array_push($this->impuestosTrasladosTemp, array("key" => $impuestoConcepto["impuesto"].$impuestoConcepto["tasaOCuota"], "base"=> floatval($valor["base"]), "impuesto" => $impuestoConcepto["impuesto"], "tipoFactor" => $impuestoConcepto["tasaOCuota"] === "Exento" ? "Exento" : "Tasa", "tasaOCuota" => $impuestoConcepto["tasaOCuota"], "importe" => floatval($impuestoConcepto["importe"])));
                     }
                 }
-                /*
+                
                 //Inicia nodo impuestos retenidos
                 if(count($valor["retenciones"]) > 0){ 
                     $this->retenciones = $this->xml->createElement("cfdi:Retenciones");
@@ -238,12 +238,12 @@ class Cfdi {
                         }
 
                         if($banderaImpuesto){
-                            array_push($this->impuestosRetenidosTemp, array("key" => $retencionConcepto["impuesto"].$retencionConcepto["tasaOCuota"], "base"=> floatval($valor["base"]), "tipo" => $retencionConcepto["impuesto"], "tipoFactor" => "Tasa", "tasaOCuota" => $retencionConcepto["tasaOCuota"], "importe" => floatval($retencionConcepto["importe"])));
+                            array_push($this->impuestosRetenidosTemp, array("key" => $retencionConcepto["impuesto"].$retencionConcepto["tasaOCuota"], "base"=> floatval($valor["base"]), "impuesto" => $retencionConcepto["impuesto"], "tipoFactor" => "Tasa", "tasaOCuota" => $retencionConcepto["tasaOCuota"], "importe" => floatval($retencionConcepto["importe"])));
                         }
                     }
                 }
                 //Termina nodo impuestos retenidos
-                */
+                
             }
             //Termina nodo impuestos translados
             /*
@@ -279,7 +279,7 @@ class Cfdi {
             foreach($this->impuestosRetenidosTemp as $impuestoRetenido){
                 $impuestoRetencion = $this->xml->createElement("cfdi:Retencion");
                 $retenciones->appendChild($impuestoRetencion);
-                $impuestoRetencion->setAttribute("Impuesto", $impuestoRetenido["impuesto"]);
+               $impuestoRetencion->setAttribute("Impuesto", $impuestoRetenido["impuesto"]);
                 $impuestoRetencion->setAttribute("Importe",  number_format($impuestoRetenido['importe'], 2));
             }
         }

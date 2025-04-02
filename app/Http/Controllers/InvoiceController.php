@@ -152,7 +152,7 @@ class InvoiceController extends Controller
         // $xml->setCartaPorte31();
         $xml->saveCfdi();
         // sleep(7);
-        return response()->json(['message' => $directorio]);
+        return response()->json(['message' => $request->concepts]);
         // $metodo = "timbradoBase64Prueba";
 
         // $data = array('contrato' => '97de57eb-d7f0-436e-af88-0b6d18783ad4', 'usuario' => 'adrian.rebollar@easysweb.com.mx', 'passwd' => 'C1nt3gr@n', 'cfdiXmlBase64' => base64_encode(file_get_contents($directorio."generica.xml")));
