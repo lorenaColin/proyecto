@@ -4,12 +4,12 @@ namespace App\Providers;
 use Ramsey\Uuid\Uuid;
 class Cfdi {
 
-    protected $banderaImpuestos;
-
+    protected $directorioComprobante;
     protected $totalImpuestosTraslados = 0;
     protected $totalImpuestosRetenidos = 0;
-
-    public function __construct($version, $fecha, $noCertificado, $certificado, $subTotal, $moneda, $total, $tipoComprobante, $lugarExpedicion, $exportacion, $formaPago="", $condicionesPago="", $metodoPago="", $descuento=0, $tipoCambio="", $serie="", $folio="")
+    
+    protected $directorio;
+    public function __construct($version, $fecha, $noCertificado, $certificado, $subTotal, $moneda, $total, $tipoComprobante, $lugarExpedicion, $exportacion, $formaPago="", $condicionesPago="", $metodoPago="", $descuento=0, $tipoCambio="", $serie="", $folio="", $directorio)
     {
 
         $this->xml = new \DOMDocument('1.0', 'UTF-8');
@@ -70,6 +70,7 @@ class Cfdi {
         //Termina datos condicionales
 
         $this->banderaImpuestos = false;
+        $this->directorioComprobante = $directorio;
     }
 
     public function setSello($sello) {
@@ -77,18 +78,24 @@ class Cfdi {
     }
 
     public function saveCfdi(){
-        $this->xml->save("C:/Users/danie/OneDrive/Documentos/Develop/easysweb/easyswebApi/storage/generica.xml");
+        $this->xml->save($this->directorioComprobante.'generica.xml');
+    }
+    public function saveCfdiTimbrado($uuid){
+        $this->xml->save($this->directorioComprobante.$uuid.'.xml');
     }
 
-    public function setUuidsRelacionados($tipoRelacion, $listaUuids) {
-        $this->relacionados = $this->xml->createElement("cfdi:CfdiRelacionados");
-        $this->relacionados->setAttribute("TipoRelacion", $tipoRelacion);
-        $this->comprobante->appendChild($this->relacionados);
+    public function setUuidsRelacionados($relaciones) {
 
-        foreach ($listaUuids as $valor) {
-            $this->relacionado = $this->xml->createElement("cfdi:CfdiRelacionado");
-            $this->relacionados->appendChild($this->relacionado);
-            $this->relacionado->setAttribute("UUID", $valor["uuid"]);
+        foreach ($relaciones as $relacion) {
+            $this->relacionados = $this->xml->createElement("cfdi:CfdiRelacionados");
+            $this->relacionados->setAttribute("TipoRelacion", $relacion['relacion']);
+            $this->comprobante->appendChild($this->relacionados);
+
+            foreach ($relacion['uuids'] as $valor) {
+                $this->relacionado = $this->xml->createElement("cfdi:CfdiRelacionado");
+                $this->relacionados->appendChild($this->relacionado);
+                $this->relacionado->setAttribute("UUID", $valor["uuid"]);
+            }
         }
     }
 
@@ -134,15 +141,15 @@ class Cfdi {
 
             
             //Inicia datos requeridos
-            $this->concepto->setAttribute("ClaveProdServ", $valor["claveProdServ"]);
-            $this->concepto->setAttribute("ClaveUnidad", $valor["claveUnidad"]);
-            $this->concepto->setAttribute("Cantidad", $valor["cantidad"]);
-            $this->concepto->setAttribute("Descripcion", $valor["descripcion"]);
-            $this->concepto->setAttribute("ValorUnitario", $valor["valorUnitario"]);
-            $this->concepto->setAttribute("Importe", $valor["importe"]);
-            $this->concepto->setAttribute("ObjetoImp", $valor["objetoImp"]);
+            $this->concepto->setAttribute("ClaveProdServ", $valor["name_product"]);
+            $this->concepto->setAttribute("ClaveUnidad", $valor["unit_value"]);
+            $this->concepto->setAttribute("Cantidad", $valor["quantity"]);
+            $this->concepto->setAttribute("Descripcion", $valor["description"]);
+            $this->concepto->setAttribute("ValorUnitario", $valor["unit_price"]);
+            $this->concepto->setAttribute("Importe", $valor["valorUnitario"]);
+            $this->concepto->setAttribute("ObjetoImp", $valor["tax_object"]);
             //Termina datos requeridos
-
+            /*
             //Inicia datos condicionales
             if($valor["unidad"] != ""){
                 $this->concepto->setAttribute("Unidad", $valor["unidad"]);
@@ -158,9 +165,9 @@ class Cfdi {
                 $this->concepto->setAttribute("NoIdentificacion", $valor["noIdentificacion"]);
             }
             //Termina datos opcionales
-
+            */
             //Inicia nodo impuestos translados
-            if($valor["objetoImp"] == "02"){
+            if($valor["tax_object"] == "02"){
                 $this->nodoImpuestos  = $this->xml->createElement("cfdi:Impuestos");
                 $this->concepto->appendChild($this->nodoImpuestos);
 
@@ -168,7 +175,7 @@ class Cfdi {
 
                 $this->traslados = $this->xml->createElement("cfdi:Traslados");
                 $this->nodoImpuestos->appendChild($this->traslados);
-                foreach ($valor["impuestos"] as $impuestoConcepto) {
+                foreach ($valor["traslados"] as $impuestoConcepto) {
 
                     $this->totalImpuestosTraslados += floatval($impuestoConcepto["importe"]);
 
@@ -200,7 +207,7 @@ class Cfdi {
                         array_push($this->impuestosTrasladosTemp, array("key" => $impuestoConcepto["impuesto"].$impuestoConcepto["tasaOCuota"], "base"=> floatval($valor["base"]), "impuesto" => $impuestoConcepto["impuesto"], "tipoFactor" => $impuestoConcepto["tasaOCuota"] === "Exento" ? "Exento" : "Tasa", "tasaOCuota" => $impuestoConcepto["tasaOCuota"], "importe" => floatval($impuestoConcepto["importe"])));
                     }
                 }
-
+                /*
                 //Inicia nodo impuestos retenidos
                 if(count($valor["retenciones"]) > 0){ 
                     $this->retenciones = $this->xml->createElement("cfdi:Retenciones");
@@ -236,9 +243,10 @@ class Cfdi {
                     }
                 }
                 //Termina nodo impuestos retenidos
+                */
             }
             //Termina nodo impuestos translados
-
+            /*
             //Inicia nodo cuentaPredial
             if(count($listaPrediales) > 0){
                 foreach ($listaPrediales as $numeroPredial) {
@@ -250,7 +258,7 @@ class Cfdi {
             
             //Termina nodo cuentaPredial
 
-            
+            */
         }
             
         if($this->banderaImpuestos){
