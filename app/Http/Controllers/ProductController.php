@@ -120,4 +120,18 @@ class ProductController extends Controller
     return ApiResponse::success('Listado de unidades', 200, $unidades);
 }
 
+public function conceptos(Request $request)
+{
+    $termino = $request->input('termino', '');
+
+    $conceptos = Product::where('internal_key', 'like', "%$termino%")
+                           ->orWhere('unit', 'like', "%$termino%")
+                           ->orWhere('unit_description', 'like', "%$termino%")
+                           ->orWhere('product_key', 'like', "%$termino%")
+
+
+                           ->get();
+
+    return ApiResponse::success('Listado de productos', 200, $conceptos);
+}
 }

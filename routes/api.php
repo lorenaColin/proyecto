@@ -47,6 +47,8 @@ Route::apiResource('serie', SerieController::class);
 Route::apiResource('products', ProductController::class);
 Route::get('catProductos', [ProductController::class, 'catProductos']);
 Route::get('catUnidad', [ProductController::class, 'catUnidad']);
+Route::get('conceptos', [ProductController::class, 'conceptos']);
+
 // invoice
 Route::apiResource('invoices', InvoiceController::class);
 //carta porte ubicaciones
