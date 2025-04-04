@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Providers\Cfdi;
 use App\Models\Company;
 use App\Models\Customer;
+use App\Models\Invoice;
 use App\Http\Responses\ApiResponse;
 use nusoap_client;
 use Illuminate\Support\Facades\Storage;
@@ -57,7 +58,7 @@ class InvoiceController extends Controller
 
         $uuidCompany = $request->uuid_company;
 
-
+        
 
         $empresa = Company::select('companies.name', 'companies.rfc', 'companies.cp', 'companies.regime', 'company_details.fechaven as vencimiento', 'company_details.tones_incluide as timbres', 'company_details.expiration_date_cert as vencimientoCertificado', 'company_details.certificate as noCertificado', 'company_details.contcert as certificado' )
             ->join('company_details', 'company_details.company_id', '=', 'companies.id')
@@ -90,7 +91,7 @@ class InvoiceController extends Controller
         // $vencimientoCertificado = substr($empresa[0]->vencimientoCertificado, 0, 19);
         // return ApiResponse::error('Error', 404, $vencimientoCertificado);
 
-        $idCliente = 'f0557162-420d-4f8e-9298-a40455ab8651';
+        $idCliente = 'd68ebd1b-949c-4b53-bd3b-34b9ac79b36d';
         $cliente = Customer::select('name', 'rfc', 'cp', 'regime', 'residence', 'num_reg_id_trib')->where('id', '=', $idCliente)->where('company_id', '=', $uuidCompany)->get();
         
         $nombreReceptor = $cliente[0]->name;
@@ -193,6 +194,34 @@ class InvoiceController extends Controller
         $xml->setComplemento();
         $xml->setTimbreFiscal($uuid, $fechaTimbrado, $rfcProveedor, $selloCfdi, $noCertificadoDoc, $selloSat);
         $xml->saveCfdi();
+
+
+        $factura = new Invoice;
+        $factura->serie = '';
+        $factura->folio = '';
+        $factura->way_to_pay = $formaPago;
+        $factura->payment_method = $metodoPago;
+        $factura->payment_conditions = "hola";
+        $factura->subtotal = $subtotal;
+        $factura->discount = $descuento;
+        $factura->currency = $moneda;
+        $factura->change_type = intval($tipoCambio);
+        $factura->payment_terms = '';
+        $factura->total = $total;
+        $factura->export = $exportacion;
+        $factura->invoice_type =$tipoComprobante;
+        // $factura->type_receipt = '';
+        $factura->invoice_usage = $usoCfdi;
+        $factura->uuid = $uuid;
+        $factura->timbre_date = $fechaTimbrado;
+        $factura->cfdi_seal = $selloCfdi;
+        $factura->sat_seal = $selloSat;
+        $factura->rfc_pac = $rfcProveedor;
+        $factura->receiver_id = $idCliente;
+        $factura->creation_date = '2024-04-13';
+        // $factura->type_relation = '';
+        $factura->uuid_company = $uuidCompany;
+        $factura->save();
 
         return response()->json(['message' => "TODO CHIDO"]);
         
