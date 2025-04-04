@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Http\Responses\ApiResponse;
 use nusoap_client;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 class InvoiceController extends Controller
 {
     /**
@@ -28,7 +29,12 @@ class InvoiceController extends Controller
         $tipoComprobante = $request->invoice_type;
         $folio = "";
         $serie = $request->serie_folio;
-        $hora = date("H:i:s");
+        $date = Carbon::now()->subDay(3)->toDateString();
+        
+        $hora = strtotime
+        
+        
+        (Carbon::now()->addDay(-3)->toDateString()) == strtotime($request->fecha) ? Carbon::now()->addSecond(5)->toTimeString(): Carbon::now()->toTimeString();
         $fecha = $request->fecha."T".$hora;
 
         $usoCfdi = $request->uso_cfdi;
@@ -58,14 +64,14 @@ class InvoiceController extends Controller
             ->where('companies.id', '=', $uuidCompany)
             ->get();
 
-        $rfcEmisor = $empresa[0]->name;
-        $nombreEmisor = $empresa[0]->rfc;
+        $rfcEmisor = $empresa[0]->rfc;
+        $nombreEmisor = $empresa[0]->name;
         $cpEmisor =$empresa[0]->cp;
         $regimenFiscalEmisor = $empresa[0]->regime;
         $fechaVencimiento = $empresa[0]->vencimiento;
 
 
-        if (strtotime(date("Y-m-d")) > strtotime($fechaVencimiento)) {
+        if (strtotime(Carbon::now()->toDateString()) > strtotime($fechaVencimiento)) {
             return ApiResponse::error('Error', 404, 'Cuenta vencida');
         }
         
@@ -121,6 +127,7 @@ class InvoiceController extends Controller
                 break;
         }
         // return response()->json(['message' => count($relaciones)]);
+        $directorioSellos = storage_path().'/app/public/companies/'.$uuidCompany.'/CSD/';
         $directorio = storage_path().'/app/public/companies/'.$uuidCompany.'/comprobantes/'.$comprobante.'/';
         $xml = new Cfdi($version, $fecha, $noCertificado, $certificado, $subtotal, $moneda, $total, $tipoComprobante, $cpEmisor, $exportacion, $formaPago, $condicionesPago, $metodoPago, $descuento, $tipoCambio, $serie, $folio, $directorio);
 
@@ -132,38 +139,63 @@ class InvoiceController extends Controller
         }
         $xml->setConceptos($conceptos);
 
-    
-        // $descuento = 0;
-        
 
-
-        // $rfcEmisor = "EKU9003173C9";
-        // $nombreEmisor = "ESCUELA KEMPER URGATE";
-        // $regimenFiscalEmisor = "601";
-
-       
-
-        
-
-        // $xml->setReceptor($rfcReceptor, $nombreReceptor, $domicilioReceptor, $regimenFiscalReceptor, $usoCfdi, $residenciaFiscal, $numRegIdTrib);
-        // $xml->setConceptos($listaConceptos);
-
-        // // $xml->setPago20();
-        // $xml->setCartaPorte31();
         $xml->saveCfdi();
-        // sleep(7);
-        return response()->json(['message' => $request->concepts]);
-        // $metodo = "timbradoBase64Prueba";
 
-        // $data = array('contrato' => '97de57eb-d7f0-436e-af88-0b6d18783ad4', 'usuario' => 'adrian.rebollar@easysweb.com.mx', 'passwd' => 'C1nt3gr@n', 'cfdiXmlBase64' => base64_encode(file_get_contents($directorio."generica.xml")));
-        // $client = new nusoap_client('https://timbrado.pade.mx/servicio/Timbrado4.0?wsdl',true);
-        // $client->soap_defencoding = 'UTF-8';
-        // $client->decode_utf8 = FALSE;
+        $xsl = new \DOMDocument('1.0','UTF-8');
+        // $xsl->loadXML(file_get_contents("https://www.sat.gob.mx/sitio_internet/cfd/4/cadenaoriginal_4_0/cadenaoriginal_4_0.xslt"));
+        $xsl->loadXML(file_get_contents(app_path()."\Providers\Sat\cfdi40.xslt"));
 
-        // $result = $client->call($metodo, $data);
-        // $respuesta = new \SimpleXMLElement($result['return']);
+        libxml_use_internal_errors(true);
+        $proc = new \XSLTProcessor;
+        $proc->importStyleSheet($xsl);
 
-        // return response()->json(['message' => $respuesta]);
+        $xml2 = new \DOMDocument;
+        $xml2->load($directorio."generica.xml");
+
+        $cadena = $proc->transformToXML($xml2);
+        $cadena = $proc->transformToXML($xml2);
+        $pkeyid = openssl_get_privatekey(file_get_contents($directorioSellos."CSD_Sucursal_1_EKU9003173C9_20230517_223850.key.pem"));
+        openssl_sign($cadena, $signature, $pkeyid, OPENSSL_ALGO_SHA256);
+        openssl_free_key($pkeyid);
+        $sello = base64_encode($signature);
+        $xml->setSello($sello);
+        $xml->saveCfdi();
+
+        $metodo = "timbradoBase64Prueba";
+
+        $data = array('contrato' => '97de57eb-d7f0-436e-af88-0b6d18783ad4', 'usuario' => 'adrian.rebollar@easysweb.com.mx', 'passwd' => 'C1nt3gr@n', 'cfdiXmlBase64' => base64_encode(file_get_contents($directorio."generica.xml")));
+        $client = new nusoap_client('https://timbrado.pade.mx/servicio/Timbrado4.0?wsdl',true);
+        $client->soap_defencoding = 'UTF-8';
+        $client->decode_utf8 = FALSE;
+
+        $result = $client->call($metodo, $data);
+        $respuesta = new \SimpleXMLElement($result['return']);
+        $mensaje = (string) $respuesta->timbradoOk  == "false" ? (string) $respuesta->mensaje : "";
+
+
+        if(!empty($mensaje)){
+            return response()->json(['message' => $mensaje]);
+        }
+
+        // $xmlTemp = new SimpleXMLElement(base64_decode($respuesta->xmlBase64));
+        // $arr = json_decode(json_encode((array)$xmlTemp), true);
+        // $sello = $arr["@attributes"]['Sello'];
+        // $nodo_comprobante->setAttribute("Sello", $sello);
+
+        $uuid = (string)$respuesta->UUID;
+        $fechaTimbrado = (string)$respuesta->FechaTimbrado;
+        $selloCfdi = (string)$respuesta->selloCFD;
+        $noCertificadoDoc = (string)$respuesta->noCertificadoSAT;
+        $selloSat = (string)$respuesta->selloSAT;
+        $rfcProveedor = "PPD101129EA3";
+
+        $xml->setComplemento();
+        $xml->setTimbreFiscal($uuid, $fechaTimbrado, $rfcProveedor, $selloCfdi, $noCertificadoDoc, $selloSat);
+        $xml->saveCfdi();
+
+        return response()->json(['message' => "TODO CHIDO"]);
+        
     }
 
     /**

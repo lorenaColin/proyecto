@@ -266,13 +266,17 @@ class Cfdi {
         }
     }
 
+    public function eliminarCaracteres($valor){
+        return str_replace(",","", number_format($valor,2));
+    }
+
     public function setImpuestosComprobante(){
 
         $impuestos = $this->xml->createElement("cfdi:Impuestos");
         $this->comprobante->appendChild($impuestos);
 
         if($this->totalImpuestosRetenidos > 0){
-            $impuestos->setAttribute("TotalImpuestosRetenidos", number_format($this->totalImpuestosRetenidos, 2));
+            $impuestos->setAttribute("TotalImpuestosRetenidos", $this->eliminarCaracteres($this->totalImpuestosRetenidos));
             $retenciones = $this->xml->createElement("cfdi:Retenciones");
             $impuestos->appendChild($retenciones);
             
@@ -280,7 +284,7 @@ class Cfdi {
                 $impuestoRetencion = $this->xml->createElement("cfdi:Retencion");
                 $retenciones->appendChild($impuestoRetencion);
                $impuestoRetencion->setAttribute("Impuesto", $impuestoRetenido["impuesto"]);
-                $impuestoRetencion->setAttribute("Importe",  number_format($impuestoRetenido['importe'], 2));
+                $impuestoRetencion->setAttribute("Importe",  $this->eliminarCaracteres($impuestoRetenido['importe']));
             }
         }
 
@@ -288,7 +292,7 @@ class Cfdi {
         $impuestos->appendChild($impuestosTraslados);
         
         if($this->totalImpuestosTraslados > 0){
-            $impuestos->setAttribute("TotalImpuestosTrasladados", str_replace(",","", number_format($this->totalImpuestosTraslados, 2)));
+            $impuestos->setAttribute("TotalImpuestosTrasladados", $this->eliminarCaracteres($this->totalImpuestosTraslados));
         }
 
         foreach ($this->impuestosTrasladosTemp as $impuestoTemporal) {
@@ -296,13 +300,13 @@ class Cfdi {
             $impuestoTraslado = $this->xml->createElement("cfdi:Traslado");
             $impuestosTraslados->appendChild($impuestoTraslado);
 
-            $impuestoTraslado->setAttribute("Base", $impuestoTemporal["base"]);
+            $impuestoTraslado->setAttribute("Base", $this->eliminarCaracteres($impuestoTemporal["base"]));
             $impuestoTraslado->setAttribute("Impuesto", $impuestoTemporal["impuesto"]);
             $impuestoTraslado->setAttribute("TipoFactor", $impuestoTemporal["tipoFactor"]);
 
             if($impuestoTemporal["tipoFactor"] != "Exento"){
                 $impuestoTraslado->setAttribute("TasaOCuota", $impuestoTemporal["tasaOCuota"]); 
-                $impuestoTraslado->setAttribute("Importe", str_replace(",","", number_format(floatval($impuestoTemporal["importe"]), 2))); 
+                $impuestoTraslado->setAttribute("Importe", $this->eliminarCaracteres($impuestoTemporal["importe"])); 
             }
             
         }
