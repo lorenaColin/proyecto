@@ -34,6 +34,8 @@ class Cfdi {
         $this->comprobante->setAttribute("TipoDeComprobante", $tipoComprobante);
         $this->comprobante->setAttribute("LugarExpedicion", $lugarExpedicion);
         $this->comprobante->setAttribute("Exportacion", $exportacion);
+        $this->comprobante->setAttribute("xmlns:cartaporte31", "http://www.sat.gob.mx/CartaPorte31");
+
         //Termina datos obligatorios
 
         //Inicia datos opcionales
@@ -77,9 +79,24 @@ class Cfdi {
         $this->comprobante->setAttribute("Sello", $sello);
     }
 
-    public function saveCfdi(){
-        $this->xml->save($this->directorioComprobante.'generica.xml');
+
+    // public function saveCfdi(){
+    //     $this->xml->save($this->directorioComprobante.'generica.xml');
+    // }
+    public function saveCfdi(string $filename = 'generica.xml')
+{
+    // Asegúrate de que el directorio exista
+    if (! file_exists($this->directorioComprobante)) {
+        mkdir($this->directorioComprobante, 0777, true);
     }
+
+    // Guarda el XML usando el nombre que te pasen
+    $fullPath = $this->directorioComprobante . $filename;
+    $this->xml->save($fullPath);
+
+    // Opcional: guarda la ruta para recuperarla más tarde
+    $this->lastSavedPath = $fullPath;
+}
     public function saveCfdiTimbrado($uuid){
         $this->xml->save($this->directorioComprobante.$uuid.'.xml');
     }
@@ -265,6 +282,110 @@ class Cfdi {
             $this->setImpuestosComprobante();
         }
     }
+/**
+ * Agrega el complemento Carta Porte al comprobante.
+ * Recibe el array que vino en $request->input('complemento_carta_porte').
+ */
+/**
+ * Inserta el complemento Carta Porte (cartaporte20:CartaPorte) en el CFDI.
+ */
+public function agregarComplementoCartaPorte(array $cp): void
+{
+    // Verificación inicial: no agregamos el complemento si todo está vacío
+     $camposVacios = true;
+
+    $camposVacios &= empty($cp['ubicaciones']);
+    $camposVacios &= empty($cp['mercancias']);
+    $camposVacios &= empty(array_filter($cp['autotransporte'] ?? [], fn($v) => !empty($v)));
+    $camposVacios &= empty(array_filter($cp['seguros'] ?? [], fn($v) => !empty($v)));
+    $camposVacios &= empty($cp['PesoBrutoTotal']);
+    $camposVacios &= empty($cp['UnidadPeso']);
+    $camposVacios &= empty($cp['NumTotalMercancias']);
+
+    if ($camposVacios) {
+        return; // No se agrega el complemento si todo está vacío
+    }
+
+
+    $complemento = $this->xml->createElement('cfdi:Complemento');
+    $this->comprobante->appendChild($complemento);
+
+    $carta = $this->xml->createElement('cartaporte31:CartaPorte');
+    $complemento->appendChild($carta);
+    $carta->setAttribute('Version', '3.1');
+
+    // Atributos generales
+    foreach (['IdCCP', 'TranspInternac', 'TotalDistRec'] as $a) {
+        if (!empty($cp[$a])) {
+            $carta->setAttribute($a, $cp[$a]);
+        }
+    }
+
+    // Ubicaciones
+    if (!empty($cp['ubicaciones'])) {
+        $ubicaciones = $this->xml->createElement('cartaporte31:Ubicaciones');
+        $carta->appendChild($ubicaciones);
+        foreach ($cp['ubicaciones'] as $u) {
+            $n = $this->xml->createElement('cartaporte31:Ubicacion');
+            $n->setAttribute('TipoUbicacion', $u['tipo']);
+            $n->setAttribute('RFCRemitenteDestinatario', $u['rfc']);
+            $n->setAttribute('FechaHoraSalidaLlegada', $u['fechaHora']);
+            if (!empty($u['distancia'])) {
+                $n->setAttribute('DistanciaRecorrida', $u['distancia']);
+            }
+            $ubicaciones->appendChild($n);
+        }
+    }
+
+    // Mercancías
+    if (!empty($cp['mercancias']) && is_array($cp['mercancias'])) {
+        $mcs = $this->xml->createElement('cartaporte31:Mercancias');
+        $carta->appendChild($mcs);
+
+        $mcs->setAttribute('PesoBrutoTotal', $cp['PesoBrutoTotal'] ?? '');
+        $mcs->setAttribute('UnidadPeso', $cp['UnidadPeso'] ?? '');
+        $mcs->setAttribute('NumTotalMercancias', $cp['NumTotalMercancias'] ?? '');
+
+        foreach ($cp['mercancias'] as $m) {
+            $mn = $this->xml->createElement('cartaporte31:Mercancia');
+            // Aquí irían los atributos específicos de cada mercancía
+            $mcs->appendChild($mn);
+        }
+
+        // Autotransporte
+        if (!empty($cp['autotransporte'])) {
+            $aut = $this->xml->createElement('cartaporte31:Autotransporte');
+            $aut->setAttribute('PermSCT', $cp['autotransporte']['PermSCT'] ?? '');
+            $aut->setAttribute('NumPermisoSCT', $cp['autotransporte']['NumPermisoSCT'] ?? '');
+
+            $veh = $this->xml->createElement('cartaporte31:IdentificacionVehicular');
+            $veh->setAttribute('ConfigVehicular', $cp['autotransporte']['cVehicle'] ?? '');
+            $veh->setAttribute('PlacaVM', $cp['autotransporte']['placa'] ?? '');
+            $veh->setAttribute('AnioModeloVM', $cp['autotransporte']['anioVehicle'] ?? '');
+            $veh->setAttribute('PesoBrutoVehicular', $cp['autotransporte']['weighVehicle'] ?? '');
+            $aut->appendChild($veh);
+
+            // Seguros
+            if (!empty($cp['seguros'])) {
+                $seguros = $this->xml->createElement('cartaporte31:Seguros');
+                if (!empty($cp['seguros']['sAmbients'])) {
+                    $seguros->setAttribute('AseguraRespCivil', $cp['seguros']['sAmbients']);
+                }
+                if (!empty($cp['seguros']['pSeguro'])) {
+                    $seguros->setAttribute('PolizaRespCivil', $cp['seguros']['pSeguro']);
+                }
+                $aut->appendChild($seguros);
+            }
+
+            $mcs->appendChild($aut);
+        }
+    }
+
+    // FiguraTransporte (opcional)
+    // Aquí podrías agregar la lógica si decides implementarla
+}
+
+
 
     public function eliminarCaracteres($valor){
         return str_replace(",","", number_format($valor,2));

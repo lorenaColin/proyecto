@@ -27,6 +27,10 @@ Route::get('resendcode', [UserController::class, 'resendcode']);
 // Route::middleware('auth:api')->group(function () {
 //company
 Route::apiResource('companies', CompanyController::class);
+Route::apiResource('companiesDetail', CompanyDetailController::class);
+
+
+
 Route::post('companies/loadSeals', [CompanyDetailController::class, 'loadSeals']);
 // clientes
 Route::apiResource('customers', CustomerController::class);
@@ -51,6 +55,13 @@ Route::get('conceptos', [ProductController::class, 'conceptos']);
 
 // invoice
 Route::apiResource('invoices', InvoiceController::class);
+Route::get('factura/{uuid_company}', [InvoiceController::class, 'index2']);
+// descarga el XML de la factura {id}
+Route::get('invoicesxml/{invoice}/xml', [InvoiceController::class,'downloadXml']);
+Route::get('obtenerUUIDs', [InvoiceController::class,'obtenerUUIDs']);
+
+
+
 //carta porte ubicaciones
 Route::apiResource('ubicacion', ubicationController::class);
 Route::get('paisesU', [ubicationController::class, 'catPais']);
@@ -65,6 +76,8 @@ Route::get('prodservcp', [mercanciasController::class, 'prodservcp']);
 Route::get('catClaveUnidad', [mercanciasController::class, 'catClaveUnidad']);
 Route::get('catMatpeligroso', [mercanciasController::class, 'catMatpeligroso']);
 Route::get('catEmbalaje', [mercanciasController::class, 'catEmbalaje']);
+Route::get('mercanciaquery', [mercanciasController::class, 'mercanciaquery']);
+
 //figuras
 Route::apiResource('figuras', figurasController::class);
 Route::get(uri: 'paisesF', action: [figurasController::class, 'catPais']);

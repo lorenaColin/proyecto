@@ -37,7 +37,6 @@ class CompanyRequest extends FormRequest
             'phone'=>['required', 'string', 'min:10', 'max:13'],
         ];
     }
-
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
@@ -46,7 +45,6 @@ class CompanyRequest extends FormRequest
             'data'      => $validator->errors()
         ]));
     }
-
 
     public function messages()
     {

@@ -6,6 +6,8 @@ use App\Http\Requests\CompanyDetailRequest;
 use App\Models\CompanyDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Responses\ApiResponse;
+
 
 class CompanyDetailController extends Controller
 {
@@ -14,7 +16,8 @@ class CompanyDetailController extends Controller
      */
     public function index()
     {
-        //
+        $figuras = CompanyDetail::all();
+        return ApiResponse::success('Listado de figuras', 200, $figuras); 
     }
 
     /**
@@ -133,10 +136,19 @@ class CompanyDetailController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(CompanyDetail $companyDetail)
+    public function show($company_id)
     {
-        //
+        // Buscar el detalle de la compañía usando company_id
+        $figuras = CompanyDetail::where('company_id', $company_id)->first();
+        
+        // Verificar si se encuentra el registro
+        if (!$figuras) {
+            return ApiResponse::error('Company no encontrada', 404, 'La company con el company_id proporcionado no existe');
+        }
+    
+        return ApiResponse::success('Detalle de la company', 200, $figuras);
     }
+    
 
     /**
      * Update the specified resource in storage.

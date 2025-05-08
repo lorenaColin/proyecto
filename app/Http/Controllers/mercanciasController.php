@@ -131,5 +131,18 @@ class mercanciasController extends Controller
         return ApiResponse::success('Listado de Embalajes ', 200, $embalaje); 
     }
     
-    
+    public function mercanciaquery(Request $request)
+{
+    $termino = $request->input('termino', '');
+
+    $conceptos = mercancia::where('claveProdServCP', 'like', "%$termino%")
+                           ->orWhere('claveUnidad', 'like', "%$termino%")
+                           ->orWhere('descripcion', 'like', "%$termino%")
+                           ->orWhere('unidad', 'like', "%$termino%")
+
+
+                           ->get();
+
+    return ApiResponse::success('Listado de mercancia', 200, $conceptos);
+}
 }

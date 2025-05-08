@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->string('serie',25);
-            // $table->date('date');
-            $table->string('way_to_pay', 5);
+            $table->date('date');
+            $table->string('way_to_pay', 5)->nullable();
             $table->string('payment_method', 12);
             $table->string('payment_conditions', 1000);
             $table->decimal('subtotal', total: 30, places: 2);

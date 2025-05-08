@@ -35,7 +35,8 @@ class Invoice extends Model
         'receiver_id',
         'creation_date',
         'type_relation',
-        'uuid_company'
+        'uuid_company',
+        'xml_filename',
     ];
 
 }
