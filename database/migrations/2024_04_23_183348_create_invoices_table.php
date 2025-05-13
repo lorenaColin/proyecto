@@ -36,10 +36,7 @@ return new class extends Migration
             $table->string('rfc_pac', 13);
 # esta llave no esta en el ER
             $table->foreignUuid('receiver_id')->references('id')->on('customers');
-            $table->string('creation_date', 19);
-          
-           
-
+            $table->string('creation_date', 19);         
             // $table->enum('status', ["vigente", "en proceso", "cancelado", "rechazo de cancelacion"])->default('0');
             $table->string('type_relation',5)->nullable();
             $table->foreignUuid('uuid_company')

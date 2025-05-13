@@ -60,6 +60,9 @@ Route::get('factura/{uuid_company}', [InvoiceController::class, 'index2']);
 Route::get('invoicesxml/{invoice}/xml', [InvoiceController::class,'downloadXml']);
 Route::get('obtenerUUIDs', [InvoiceController::class,'obtenerUUIDs']);
 
+Route::middleware('auth:api')->get('/me', function (Request $request) {
+    return response()->json($request->user());
+});
 
 
 //carta porte ubicaciones

@@ -98,7 +98,7 @@ class CompanyController extends Controller
                 chmod(public_path('storage/' . $rutaComprobante), 0777);
             }
     
-            $timbresRegalo = 0;
+            $timbresRegalo = 3;
             $fechaActual = date("Y-m-d");
 
             //TODO CHECAR ESTA LINEA PARA LOS HIJOS

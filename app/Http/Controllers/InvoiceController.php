@@ -98,7 +98,8 @@ class InvoiceController extends Controller
         $noCertificado = $empresa[0]->noCertificado;
         $certificado = $empresa[0]->certificado;
 
-        $idCliente = 'd68ebd1b-949c-4b53-bd3b-34b9ac79b36d';
+        // $idCliente = 'd68ebd1b-949c-4b53-bd3b-34b9ac79b36d';
+        $idCliente = $request->receptor;
         $cliente = Customer::select('name', 'rfc', 'cp', 'regime', 'residence', 'num_reg_id_trib')->where('id', '=', $idCliente)->where('company_id', '=', $uuidCompany)->get();
         if ($cliente->isEmpty()) {
             return ApiResponse::error('Error', 404, 'Cliente no encontrado');
@@ -140,6 +141,27 @@ class InvoiceController extends Controller
         if (! is_dir($directorio)) {
             mkdir($directorio, 0755, true);
         }
+        $keyPath = $directorioSellos . 'CSD_Sucursal_1_EKU9003173C9_20230517_223850.key.pem';
+if (file_exists($keyPath)) {
+    try {
+        $pkeyContent = @file_get_contents($keyPath);
+        if ($pkeyContent !== false) {
+            $pkeyid = openssl_get_privatekey($pkeyContent);
+            openssl_sign($cadena, $signature, $pkeyid, OPENSSL_ALGO_SHA256);
+            openssl_free_key($pkeyid);
+
+            $sello = base64_encode($signature);
+            $xml->setSello($sello);
+            $xml->saveCfdi(); 
+        } else {
+            Log::warning("No se pudo leer la llave en $keyPath");
+        }
+    } catch (\Throwable $e) {
+        Log::warning("Error firmando con llave ($keyPath): ".$e->getMessage());
+    }
+} else {
+    Log::warning("Archivo llave no encontrado, se omite firma: $keyPath");
+}
         
         $xml = new Cfdi($version, $fecha, $noCertificado, $certificado, $subtotal, $moneda, $total, $tipoComprobante, $cpEmisor, $exportacion, $formaPago, $condicionesPago, $metodoPago, $descuento, $tipoCambio, $serie, $folio, $directorio);
 
@@ -182,7 +204,7 @@ class InvoiceController extends Controller
         // 4) Vuelve a grabar el XML ya con el complemento dentro
         $xml->saveCfdi($uniqueName);
         $cadena = null;
-        // $xml->saveCfdi('generica.xml');
+        $xml->saveCfdi('generica.xml');
         if (class_exists('XSLTProcessor')) {
         $xsl = new \DOMDocument('1.0','UTF-8');
         $xsl->loadXML(file_get_contents(app_path()."\Providers\Sat\cfdi40.xslt"));
@@ -210,12 +232,12 @@ class InvoiceController extends Controller
          } else {
         echo "La clase XSLTProcessor no está disponible.";
     }
-        $pkeyid = openssl_get_privatekey(file_get_contents($directorioSellos."CSD_Sucursal_1_EKU9003173C9_20230517_223850.key.pem"));
-        openssl_sign($cadena, $signature, $pkeyid, OPENSSL_ALGO_SHA256);
-        openssl_free_key($pkeyid);
-        $sello = base64_encode($signature);
-        $xml->setSello($sello);
-        $xml->saveCfdi();
+        // $pkeyid = openssl_get_privatekey(file_get_contents($directorioSellos."CSD_Sucursal_1_EKU9003173C9_20230517_223850.key.pem"));
+        // openssl_sign($cadena, $signature, $pkeyid, OPENSSL_ALGO_SHA256);
+        // openssl_free_key($pkeyid);
+        // $sello = base64_encode($signature);
+        // $xml->setSello($sello);
+        // $xml->saveCfdi();
 
         $metodo = "timbradoBase64Prueba";
 
@@ -516,23 +538,35 @@ class InvoiceController extends Controller
     // }
     public function downloadXml(Invoice $invoice)
     {
+        // Determinar la carpeta según el tipo de factura
+        $folder = match ($invoice->invoice_type) {
+            'I' => 'ingreso',
+            'E' => 'egreso',
+            'T' => 'traslado',
+            default => 'otros', // Puedes eliminar esta línea si solo manejas I, E y T
+        };
+    
+        // Construir la ruta al archivo
         $path = public_path(
             'storage/companies/'
             . $invoice->uuid_company
             . '/comprobantes/'
-            . ($invoice->invoice_type === 'I' ? 'ingreso' : 'egreso')
+            . $folder
             . '/'
             . $invoice->xml_filename
         );
     
+        // Verificar si el archivo existe
         if (!file_exists($path)) {
             return response()->json(['message' => 'Archivo no encontrado'], 404);
         }
     
+        // Descargar el archivo
         return response()->download($path, $invoice->xml_filename, [
             'Content-Type' => 'application/xml'
         ]);
     }
+    
 
     public function obtenerUUIDs()
     {
