@@ -14,6 +14,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str; 
 use Illuminate\Support\Facades\File; 
+use NumberToWords\NumberToWords;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
 {
@@ -203,6 +205,29 @@ if (file_exists($keyPath)) {
     
         // 4) Vuelve a grabar el XML ya con el complemento dentro
         $xml->saveCfdi($uniqueName);
+        // ————————————————
+// 1) Parsear el XML recién guardado para obtener los conceptos
+// ————————————————
+
+$xmlPath = storage_path("app/public/companies/{$uuidCompany}/comprobantes/{$comprobante}/{$uniqueName}");
+
+$xmlContent = simplexml_load_file($xmlPath);
+$namespaces = $xmlContent->getNamespaces(true);
+$xmlContent->registerXPathNamespace('cfdi', $namespaces['cfdi']);
+$conceptosXml = $xmlContent->xpath('//cfdi:Concepto');
+
+$conceptosArray = [];
+foreach ($conceptosXml as $nodo) {
+    $attrs = $nodo->attributes();
+    $conceptosArray[] = [
+        'descripcion'      => (string) $attrs['Descripcion'],
+        'cantidad'         => (float)  $attrs['Cantidad'],
+        'unidad'           => (string) $attrs['Unidad'],
+        'valor_unitario'   => (float)  $attrs['ValorUnitario'],
+        'importe'          => (float)  $attrs['Importe'],
+    ];
+}
+
         $cadena = null;
         $xml->saveCfdi('generica.xml');
         if (class_exists('XSLTProcessor')) {
@@ -232,12 +257,7 @@ if (file_exists($keyPath)) {
          } else {
         echo "La clase XSLTProcessor no está disponible.";
     }
-        // $pkeyid = openssl_get_privatekey(file_get_contents($directorioSellos."CSD_Sucursal_1_EKU9003173C9_20230517_223850.key.pem"));
-        // openssl_sign($cadena, $signature, $pkeyid, OPENSSL_ALGO_SHA256);
-        // openssl_free_key($pkeyid);
-        // $sello = base64_encode($signature);
-        // $xml->setSello($sello);
-        // $xml->saveCfdi();
+     
 
         $metodo = "timbradoBase64Prueba";
 
@@ -295,25 +315,45 @@ if (file_exists($keyPath)) {
         $factura->uuid_company = $uuidCompany;
         $factura->date = Carbon::now();
         $factura->xml_filename = $uniqueName;
-        $factura->save();
-        if ($factura->save()) {
-            return response()->json(['message' => "Factura guardada correctamente"]);
-        } else {
-            return response()->json(['message' => "Error al guardar la factura", 'errors' => $factura->errors()]);
-        }
-        // return response()->json(['message' => "TODO CHIDO"]);
-    } catch (\Throwable $e) {
-        Log::error('Error en store Invoice: ' . $e->getMessage(), [
-            'line' => $e->getLine(),
-            'file' => $e->getFile(),
-        ]);
-        return response()->json([
-            'error'  => 'Error interno al procesar CFDI',
-            'detail' => $e->getMessage(),
-        ], 500);
-      }
-    }
+          $factura->pdf_filename  = null;
 
+ 
+    $factura->save();
+$numberToWords = new NumberToWords();
+$transformer   = $numberToWords->getNumberTransformer('es');
+$factura->monto_letra = strtoupper($transformer->toWords($factura->total)) . ' PESOS 00/100 M.N.';
+
+// 4) Generar el PDF enviando factura + conceptos
+$pdf = Pdf::loadView('facturas.pdf', [
+    'factura'   => $factura,
+    'conceptos' => $conceptosArray,
+]);
+$pdfDir = storage_path("app/public/facturas/{$uuidCompany}/pdf/");
+if (!\File::exists($pdfDir)) {
+    \File::makeDirectory($pdfDir, 0755, true);
+}
+
+// 6) Definir nombre y guardar
+$pdfName = "factura_{$serie}_{$folio}_{$uuid}.pdf";
+$pdf->save($pdfDir . $pdfName);
+
+// 7) Actualizar registro
+$factura->pdf_filename = $pdfName;
+$factura->save();
+    // Responder con éxito
+    return response()->json(['message' => "Factura guardada y PDF generado correctamente"]);
+
+} catch (\Throwable $e) {
+    Log::error('Error en store Invoice: ' . $e->getMessage(), [
+        'line' => $e->getLine(),
+        'file' => $e->getFile(),
+    ]);
+    return response()->json([
+        'error'  => 'Error interno al procesar CFDI',
+        'detail' => $e->getMessage(),
+    ], 500);
+}
+    }
     // public function store(Request $request)
     // {
     //     // return response()->json(['message' => $request->uuid_company]);
@@ -566,7 +606,12 @@ if (file_exists($keyPath)) {
             'Content-Type' => 'application/xml'
         ]);
     }
-    
+public function descargarPDFPorId($id)
+{
+    $factura = Invoice::findOrFail($id);
+    $path    = storage_path("app/public/facturas/{$factura->uuid_company}/pdf/{$factura->pdf_filename}");
+    return response()->download($path, $factura->pdf_filename);
+}
 
     public function obtenerUUIDs()
     {

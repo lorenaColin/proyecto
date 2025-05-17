@@ -38,5 +38,9 @@ class Invoice extends Model
         'uuid_company',
         'xml_filename',
     ];
+public function conceptos()
+{
+    return $this->hasMany(Concepto::class, 'factura_id');
+}
 
 }

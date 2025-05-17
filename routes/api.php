@@ -59,6 +59,12 @@ Route::get('factura/{uuid_company}', [InvoiceController::class, 'index2']);
 // descarga el XML de la factura {id}
 Route::get('invoicesxml/{invoice}/xml', [InvoiceController::class,'downloadXml']);
 Route::get('obtenerUUIDs', [InvoiceController::class,'obtenerUUIDs']);
+// backend - web.php o api.php
+Route::get('/factura/{id}/descargar-pdf', [InvoiceController::class, 'descargarPDFPorId']);
+
+
+
+
 
 Route::middleware('auth:api')->get('/me', function (Request $request) {
     return response()->json($request->user());
