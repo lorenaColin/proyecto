@@ -152,8 +152,21 @@ class figurasController extends Controller
             'municipio' => $direccion->municipio, 
             'colonias' => $direccion->colonias,
             'localidades' => $direccion->localidades
+            
         ]);
     }
     
+ public function figurasquery(Request $request)
+{
+    $termino = $request->input('termino', '');
 
+    $conceptos = figuras::where('rfcFigura', 'like', "%$termino%")
+                           ->orWhere('numLicencia', 'like', "%$termino%")
+                           ->orWhere('nombreFigura', 'like', "%$termino%")
+
+
+                           ->get();
+
+    return ApiResponse::success('Listado de figuras', 200, $conceptos);
+}
 }

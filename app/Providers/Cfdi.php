@@ -348,14 +348,21 @@ public function agregarComplementoCartaPorte(array $cp): void
 
         foreach ($cp['mercancias'] as $m) {
             $mn = $this->xml->createElement('cartaporte31:Mercancia');
-            // Aquí irían los atributos específicos de cada mercancía
-            $mcs->appendChild($mn);
+           // Le asignamos todos sus atributos:
+    $mn->setAttribute('BienesTransp', $m['BienesTransp']);
+    $mn->setAttribute('Descripcion',  $m['descripcion']);
+    $mn->setAttribute('ClaveUnidad',  $m['ClaveUnidad']);
+    $mn->setAttribute('Cantidad',     $m['Cantidad']);
+    $mn->setAttribute('PesoEnKg',     $m['pesoKg']);
+
+    // Finalmente lo agregamos al padre:
+    $mcs->appendChild($mn);
         }
 
         // Autotransporte
         if (!empty($cp['autotransporte'])) {
             $aut = $this->xml->createElement('cartaporte31:Autotransporte');
-            $aut->setAttribute('PermSCT', $cp['autotransporte']['PermSCT'] ?? '');
+            $aut->setAttribute('PermSCT2', $cp['autotransporte']['PermSCT2'] ?? '');
             $aut->setAttribute('NumPermisoSCT', $cp['autotransporte']['NumPermisoSCT'] ?? '');
 
             $veh = $this->xml->createElement('cartaporte31:IdentificacionVehicular');
@@ -381,8 +388,37 @@ public function agregarComplementoCartaPorte(array $cp): void
         }
     }
 
-    // FiguraTransporte (opcional)
-    // Aquí podrías agregar la lógica si decides implementarla
+  // FiguraTransporte (opcional)
+if (!empty($cp['figuras']) && is_array($cp['figuras'])) {
+    $figuras = $this->xml->createElement('cartaporte31:FiguraTransporte');
+
+    foreach ($cp['figuras'] as $fig) {
+        $figura = $this->xml->createElement('cartaporte31:TiposFigura');
+        $figura->setAttribute('TipoFigura', $fig['tipoFigura'] ?? '');
+        $figura->setAttribute('RFCFigura', $fig['rfcFigura'] ?? '');
+
+        if (!empty($fig['numLicencia'])) {
+            $figura->setAttribute('NumLicencia', $fig['numLicencia']);
+        }
+
+        if (!empty($fig['nombreFigura'])) {
+            $figura->setAttribute('NombreFigura', $fig['nombreFigura']);
+        }
+
+        if (!empty($fig['numRegIdTribFigura'])) {
+            $figura->setAttribute('NumRegIdTribFigura', $fig['numRegIdTribFigura']);
+        }
+
+        if (!empty($fig['residenciaFiscalFigura'])) {
+            $figura->setAttribute('ResidenciaFiscalFigura', $fig['residenciaFiscalFigura']);
+        }
+
+        $figuras->appendChild($figura);
+    }
+
+    $carta->appendChild($figuras);
+}
+
 }
 
 

@@ -210,22 +210,203 @@ if (file_exists($keyPath)) {
 // ————————————————
 
 $xmlPath = storage_path("app/public/companies/{$uuidCompany}/comprobantes/{$comprobante}/{$uniqueName}");
+if (! file_exists($xmlPath)) {
+    throw new \Exception("XML no encontrado: $xmlPath");
+}
 
+// 1.2) Carga el XML
 $xmlContent = simplexml_load_file($xmlPath);
 $namespaces = $xmlContent->getNamespaces(true);
-$xmlContent->registerXPathNamespace('cfdi', $namespaces['cfdi']);
-$conceptosXml = $xmlContent->xpath('//cfdi:Concepto');
+// $xmlContent->registerXPathNamespace('cfdi', $namespaces['cfdi']);
+if (isset($namespaces['cfdi'])) {
+    $xmlContent->registerXPathNamespace('cfdi', $namespaces['cfdi']);
+}
+if (isset($namespaces['tfd'])) {
+    $xmlContent->registerXPathNamespace('tfd', $namespaces['tfd']);
+} else {
+    // A veces el prefijo viene sin alias tfd; lo registramos manualmente:
+    $xmlContent->registerXPathNamespace('tfd', 'http://www.sat.gob.mx/TimbreFiscalDigital');
+}
+$tfdNode = $xmlContent->xpath('//tfd:TimbreFiscalDigital')[0] ?? null;
 
+$datosComplementarios = [
+    'folio_fiscal'      => $tfdNode ? (string)$tfdNode['UUID']            : '',
+    'csd_emisor'        => $tfdNode ? (string)$tfdNode['NoCertificadoSAT'] : '',
+    'lugar_expedicion'  => (string)$xmlContent['LugarExpedicion'],
+    'fecha_emision'     => (string)$xmlContent['Fecha'],
+    'tipo_cfdi'         => (string)$xmlContent['TipoDeComprobante'],
+];
+
+// 2) Global <cfdi:Impuestos>
+$impuestosNode = $xmlContent->xpath('//cfdi:Impuestos')[0] ?? null;
+
+$datosImpuestos = [
+    'subtotal'                => (float) $xmlContent['SubTotal'],
+    'total'                   => (float) $xmlContent['Total'],
+    'totalImpuestosTrasladados'=> 0.0,
+    'totalImpuestosRetenidos' => 0.0,
+    'traslados'               => [],  // para detalle
+    'retenciones'             => [],  // para detalle
+];
+if ($impuestosNode) {
+    // Totales
+    $datosImpuestos['totalImpuestosTrasladados'] = (float)($impuestosNode['TotalImpuestosTrasladados'] ?? 0);
+    $datosImpuestos['totalImpuestosRetenidos']  = (float)($impuestosNode['TotalImpuestosRetenidos']  ?? 0);
+
+    // Detalle de Traslados
+    foreach ($impuestosNode->xpath('cfdi:Traslados/cfdi:Traslado') as $t) {
+        $attrs = $t->attributes();
+        $datosImpuestos['traslados'][] = [
+            'impuesto'  => (string) $attrs['Impuesto'],
+            'tasa'      => (string) $attrs['TasaOCuota'],
+            'importe'   => (float)  $attrs['Importe'],
+        ];
+    }
+
+    // Detalle de Retenciones
+    foreach ($impuestosNode->xpath('cfdi:Retenciones/cfdi:Retencion') as $r) {
+        $attrs = $r->attributes();
+        $datosImpuestos['retenciones'][] = [
+            'impuesto'  => (string) $attrs['Impuesto'],
+            'importe'   => (float)  $attrs['Importe'],
+        ];
+    }
+}
+// 1.3) Emisor
+$emisorNode = $xmlContent->xpath('//cfdi:Emisor')[0];
+$emisor = [
+    'nombre'  => (string) $emisorNode['Nombre'],
+    'rfc'     => (string) $emisorNode['Rfc'],
+    'regimen' => (string) $emisorNode['RegimenFiscal'],
+    // si tu XML trae CP o dirección en Emisor, aquí la agregas
+];
+
+// 1.4) Receptor
+$receptorNode = $xmlContent->xpath('//cfdi:Receptor')[0];
+$receptor = [
+    'nombre'   => (string) $receptorNode['Nombre'],
+    'rfc'      => (string) $receptorNode['Rfc'],
+    'uso'      => (string) $receptorNode['UsoCFDI'],
+    'domicilio'=> (string) $receptorNode['DomicilioFiscalReceptor'],
+];
+
+// 1.5) Conceptos (ya lo hacías)
+$conceptosXml   = $xmlContent->xpath('//cfdi:Concepto');
 $conceptosArray = [];
-foreach ($conceptosXml as $nodo) {
-    $attrs = $nodo->attributes();
+foreach ($conceptosXml as $n) {
+    $a = $n->attributes();
     $conceptosArray[] = [
-        'descripcion'      => (string) $attrs['Descripcion'],
-        'cantidad'         => (float)  $attrs['Cantidad'],
-        'unidad'           => (string) $attrs['Unidad'],
-        'valor_unitario'   => (float)  $attrs['ValorUnitario'],
-        'importe'          => (float)  $attrs['Importe'],
+        'descripcion'    => (string) $a['Descripcion'],
+        'cantidad'       => (float)  $a['Cantidad'],
+        'unidad'         => (string) $a['Unidad'],
+        'valor_unitario' => (float)  $a['ValorUnitario'],
+        'importe'        => (float)  $a['Importe'],
     ];
+}
+// ya cargaste simplexml_load_file($xmlPath) y registraste cfdi y tfd...
+if (isset($namespaces['cartaporte31'])) {
+    $xmlContent->registerXPathNamespace('cartaporte31', $namespaces['cartaporte31']);
+} else {
+    $xmlContent->registerXPathNamespace('cartaporte31', 'http://www.sat.gob.mx/CartaPorte31');
+}
+
+// Busca el nodo CartaPorte
+$cartaNode = $xmlContent->xpath('//cartaporte31:CartaPorte')[0] ?? null;
+
+// Si existe, extrae las secciones que necesites:
+$cartaPorte = [];
+if ($cartaNode) {
+    // Ubicaciones
+    $cartaPorte['ubicaciones'] = [];
+    foreach ($cartaNode->xpath('cartaporte31:Ubicaciones/cartaporte31:Ubicacion') as $u) {
+        $a = $u->attributes();
+        $cartaPorte['ubicaciones'][] = [
+            'tipo'      => (string)$a['TipoUbicacion'],
+            'rfc'       => (string)$a['RFCRemitenteDestinatario'],
+            'fechaHora' => (string)$a['FechaHoraSalidaLlegada'],
+            'distancia' => (string)$a['DistanciaRecorrida'] ?? '',
+        ];
+    }
+
+   $merc = $cartaNode->xpath('cartaporte31:Mercancias')[0] ?? null;
+if ($merc) {
+    // 1) Totales
+    $mc = $merc->attributes();
+    $cartaPorte['mercancias'] = [
+        'pesoBrutoTotal'     => (string) $mc['PesoBrutoTotal'],
+        'unidadPeso'         => (string) $mc['UnidadPeso'],
+        'numTotalMercancias' => (string) $mc['NumTotalMercancias'],
+        // inicializa el array de ítems
+        'items'              => [],
+    ];
+
+    // 2) Detalle de cada <cartaporte31:Mercancia>
+    $nodes = $merc->xpath('cartaporte31:Mercancia');
+    foreach ($nodes as $node) {
+        $a = $node->attributes();
+        $cartaPorte['mercancias']['items'][] = [
+            'BienesTransp' => (string) $a['BienesTransp'],
+            'Descripcion'  => (string) $a['Descripcion'],
+            'ClaveUnidad'  => (string) $a['ClaveUnidad'],
+            'Cantidad'     => (string) $a['Cantidad'],
+            'PesoEnKg'     => (string) $a['PesoEnKg'],
+        ];
+    }
+}
+// FiguraTransporte
+$cartaPorte['figuras'] = [];
+foreach ($cartaNode->xpath('cartaporte31:FiguraTransporte/cartaporte31:TiposFigura') as $f) {
+    $a = $f->attributes();
+    $cartaPorte['figuras'][] = [
+        'tipoFigura'           => (string)$a['TipoFigura'],
+        'rfcFigura'            => (string)$a['RFCFigura'],
+        'numLicencia'          => (string)($a['NumLicencia'] ?? ''),
+        'nombreFigura'         => (string)($a['NombreFigura'] ?? ''),
+        'numRegIdTribFigura'   => (string)($a['NumRegIdTribFigura'] ?? ''),
+        'residenciaFiscalFigura' => (string)($a['ResidenciaFiscalFigura'] ?? ''),
+    ];
+}
+
+    // Autotransporte
+    $auto = $cartaNode->xpath('cartaporte31:Mercancias/cartaporte31:Autotransporte')[0] ?? null;
+    if ($auto) {
+        $attrs = $auto->attributes();
+        $cartaPorte['autotransporte'] = [
+            'numPermisoSCT'   => (string)$attrs['NumPermisoSCT'],
+            'permSCT2'         => (string)$attrs['PermSCT2'],
+        ];
+        // Vehicular
+        $veh = $auto->xpath('cartaporte31:IdentificacionVehicular')[0] ?? null;
+        if ($veh) {
+            $v = $veh->attributes();
+            $cartaPorte['vehicular'] = [
+                'configVehicular'   => (string)$v['ConfigVehicular'],
+                'placaVM'           => (string)$v['PlacaVM'],
+                'anioModeloVM'      => (string)$v['AnioModeloVM'],
+                'pesoBrutoVehicular'=> (string)$v['PesoBrutoVehicular'],
+            ];
+        }
+        // Seguros
+        $seg = $auto->xpath('cartaporte31:Seguros')[0] ?? null;
+        if ($seg) {
+            $s = $seg->attributes();
+            $cartaPorte['seguros'] = [
+                'aseguraRespCivil'  => (string)$s['AseguraRespCivil'],
+                'polizaRespCivil'   => (string)$s['PolizaRespCivil'],
+            ];
+        }
+    }
+
+    // Remolques (si los tuviere)
+    $cartaPorte['remolques'] = [];
+    foreach ($cartaNode->xpath('//cartaporte31:Remolques/cartaporte31:Remolque') as $r) {
+        $a = $r->attributes();
+        $cartaPorte['remolques'][] = [
+            'tipoRem'   => (string)$a['TipoRemolque'],
+            'placa'     => (string)$a['PlacaVM'],
+        ];
+    }
+    
 }
 
         $cadena = null;
@@ -325,8 +506,14 @@ $factura->monto_letra = strtoupper($transformer->toWords($factura->total)) . ' P
 
 // 4) Generar el PDF enviando factura + conceptos
 $pdf = Pdf::loadView('facturas.pdf', [
-    'factura'   => $factura,
-    'conceptos' => $conceptosArray,
+    'factura'             => $factura,
+    'emisor'              => $emisor,
+    'receptor'            => $receptor,
+    'conceptos'           => $conceptosArray,
+    'impuestos'           => $datosImpuestos,
+      'complementoCfdi' => $datosComplementarios,  // ya está definido
+        'cartaPorte' => $cartaPorte,
+        
 ]);
 $pdfDir = storage_path("app/public/facturas/{$uuidCompany}/pdf/");
 if (!\File::exists($pdfDir)) {

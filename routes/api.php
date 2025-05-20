@@ -89,6 +89,8 @@ Route::get('mercanciaquery', [mercanciasController::class, 'mercanciaquery']);
 
 //figuras
 Route::apiResource('figuras', figurasController::class);
+Route::get('figurasquery', [figurasController::class, 'figurasquery']);
+
 Route::get(uri: 'paisesF', action: [figurasController::class, 'catPais']);
 Route::get('direccionF/{codigoPostal}', [figurasController::class, 'buscarDireccion']);
 Route::apiResource('autotransports', AutotransportController::class);
