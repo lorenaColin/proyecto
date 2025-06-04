@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Providers\Cfdi;
 use App\Models\Company;
+use App\Models\CompanyDetail;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Http\Responses\ApiResponse;
@@ -500,6 +501,13 @@ foreach ($cartaNode->xpath('cartaporte31:FiguraTransporte/cartaporte31:TiposFigu
 
  
     $factura->save();
+   $companyDetail = CompanyDetail::where('company_id', $uuidCompany)->first();
+
+if ($companyDetail && $companyDetail->tones_incluide > 0) {
+    $companyDetail->tones_incluide -= 1;
+    $companyDetail->save();
+}
+
 $numberToWords = new NumberToWords();
 $transformer   = $numberToWords->getNumberTransformer('es');
 $factura->monto_letra = strtoupper($transformer->toWords($factura->total)) . ' PESOS 00/100 M.N.';
@@ -524,10 +532,8 @@ if (!\File::exists($pdfDir)) {
 $pdfName = "factura_{$serie}_{$folio}_{$uuid}.pdf";
 $pdf->save($pdfDir . $pdfName);
 
-// 7) Actualizar registro
 $factura->pdf_filename = $pdfName;
 $factura->save();
-    // Responder con éxito
     return response()->json(['message' => "Factura guardada y PDF generado correctamente"]);
 
 } catch (\Throwable $e) {

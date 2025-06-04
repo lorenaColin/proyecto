@@ -97,3 +97,4 @@ Route::apiResource('autotransports', AutotransportController::class);
 Route::get('/config', [AutotransportController::class, 'getConfigAutotransporte']);
 Route::get('/permis', [AutotransportController::class, 'getPermisos']);
 Route::apiResource('insurances', InsuranceController::class);
+
